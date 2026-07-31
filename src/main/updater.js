@@ -60,3 +60,8 @@ export function setupAutoUpdater(win) {
   autoUpdater.checkForUpdates().catch(() => {});
   setInterval(() => autoUpdater.checkForUpdates().catch(() => {}), CHECK_INTERVAL_MS);
 }
+
+export function checkForUpdate() {
+  if (!app.isPackaged) return Promise.resolve();
+  return autoUpdater.checkForUpdates().catch(() => {});
+}

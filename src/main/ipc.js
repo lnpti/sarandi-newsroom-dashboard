@@ -1,4 +1,5 @@
 import { ipcMain, app } from 'electron';
+import { checkForUpdate } from './updater.js';
 
 export function registerIpc({ win, store, pollers, getSettings, updateSettings }) {
   ipcMain.handle('dashboard:getSnapshot', () => store.getSnapshot());
@@ -17,6 +18,8 @@ export function registerIpc({ win, store, pollers, getSettings, updateSettings }
   ipcMain.handle('dashboard:refreshAll', () =>
     Promise.all(Object.values(pollers).map((p) => p.refreshNow()))
   );
+
+  ipcMain.handle('app:checkForUpdate', () => checkForUpdate());
 
   ipcMain.handle('app:toggleFullscreen', () => {
     win.setFullScreen(!win.isFullScreen());

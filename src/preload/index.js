@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld('dashboard', {
   refreshNow: (sourceKey) => ipcRenderer.invoke('dashboard:refreshNow', sourceKey),
   refreshAll: () => ipcRenderer.invoke('dashboard:refreshAll'),
   toggleFullscreen: () => ipcRenderer.invoke('app:toggleFullscreen'),
+  checkForUpdate: () => ipcRenderer.invoke('app:checkForUpdate'),
   getVersion: () => ipcRenderer.invoke('app:getVersion'),
   getSettings: () => ipcRenderer.invoke('settings:get'),
   updateSettings: (partial) => ipcRenderer.invoke('settings:update', partial),

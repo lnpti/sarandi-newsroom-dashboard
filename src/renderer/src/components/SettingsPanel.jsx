@@ -6,6 +6,7 @@ export default function SettingsPanel({ onClose }) {
   const [settings, setSettings] = useState(null);
   const [theme, setTheme] = useState(getStoredTheme);
   const [refreshing, setRefreshing] = useState(false);
+  const [updateState, setUpdateState] = useState(null);
 
   useEffect(() => {
     window.dashboard.getSettings().then(setSettings);
@@ -21,11 +22,31 @@ export default function SettingsPanel({ onClose }) {
     applyTheme(id);
   }
 
+  useEffect(() => {
+    const unsub = window.dashboard.onUpdaterStatus?.((payload) => {
+      setUpdateState(payload.status);
+      if (payload.status === 'idle') {
+        setTimeout(() => setUpdateState(null), 3000);
+      }
+    });
+    return () => unsub?.();
+  }, []);
+
   async function handleRefreshAll() {
     setRefreshing(true);
     await window.dashboard.refreshAll();
     setRefreshing(false);
   }
+
+  async function handleCheckUpdate() {
+    setUpdateState('checking');
+    await window.dashboard.checkForUpdate();
+  }
+
+  const updateLabel =
+    updateState === 'checking' ? 'Verificando…' :
+    updateState === 'idle'     ? 'App já está atualizado ✓' :
+                                 'Verificar atualização do app';
 
   return (
     <div className="settings-overlay" onClick={onClose}>
@@ -73,6 +94,14 @@ export default function SettingsPanel({ onClose }) {
           disabled={refreshing}
         >
           {refreshing ? 'Atualizando…' : '↻ Atualizar tudo agora'}
+        </button>
+
+        <button
+          className="settings-refresh-btn settings-refresh-btn--secondary"
+          onClick={handleCheckUpdate}
+          disabled={updateState === 'checking' || updateState === 'available' || updateState === 'downloading'}
+        >
+          {updateLabel}
         </button>
       </div>
     </div>

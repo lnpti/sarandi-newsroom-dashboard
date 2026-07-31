@@ -1,4 +1,4 @@
-# publicar.ps1 — publica uma nova versão do Sarandi Newsroom Dashboard
+# publicar.ps1 — commita, versiona e publica o Sarandi Newsroom Dashboard
 # Uso: .\publicar.ps1 [versão]
 # Exemplos:
 #   .\publicar.ps1          → incrementa o patch automaticamente (1.0.5 → 1.0.6)
@@ -42,7 +42,24 @@ if (-not $env:GH_TOKEN) {
     exit 1
 }
 
-# Atualiza a versão via npm (confiável, sem risco de BOM ou encoding)
+# ── 1. Commit de mudanças pendentes ─────────────────────────────────────────
+Write-Host ""
+Write-Host "Verificando mudanças pendentes..."
+git add -A
+$pendente = git status --porcelain
+if ($pendente) {
+    Write-Host "Commitando código-fonte..."
+    git commit -m "chore: atualização antes do release v$Versao"
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Falha ao commitar." -ForegroundColor Red
+        Read-Host "Pressione Enter para fechar"
+        exit 1
+    }
+} else {
+    Write-Host "Nenhuma mudança pendente."
+}
+
+# ── 2. Bump de versão ────────────────────────────────────────────────────────
 Write-Host ""
 npm version $Versao --no-git-tag-version
 if ($LASTEXITCODE -ne 0) {
@@ -51,12 +68,28 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-# Confirma que o package.json foi atualizado corretamente
 $versaoNova = (Get-Content "package.json" -Raw | ConvertFrom-Json).version
 Write-Host "package.json atualizado para v$versaoNova"
+
+git add package.json package-lock.json
+git commit -m "chore: release v$versaoNova"
+
+# ── 3. Push ──────────────────────────────────────────────────────────────────
+Write-Host ""
+Write-Host "Enviando para o GitHub..."
+git push origin main
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Falha ao enviar para o GitHub." -ForegroundColor Red
+    Write-Host "Revertendo versão..."
+    npm version $versaoAtual --no-git-tag-version | Out-Null
+    Read-Host "Pressione Enter para fechar"
+    exit 1
+}
+
+# ── 4. Build e publicação ────────────────────────────────────────────────────
+Write-Host ""
 Write-Host "Iniciando build e publicação..."
 Write-Host ""
-
 npm run release
 
 if ($LASTEXITCODE -eq 0) {
@@ -66,8 +99,8 @@ if ($LASTEXITCODE -eq 0) {
 } else {
     Write-Host ""
     Write-Host "Falha na publicação (código $LASTEXITCODE)." -ForegroundColor Red
-    Write-Host "Revertendo package.json para v$versaoAtual..."
-    npm version $versaoAtual --no-git-tag-version | Out-Null
+    Write-Host "O código já foi enviado ao GitHub mas o instalador não foi gerado."
+    Write-Host "Rode 'npm run release' manualmente após corrigir o problema."
 }
 
 Read-Host "Pressione Enter para fechar"
