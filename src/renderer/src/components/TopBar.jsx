@@ -1,0 +1,53 @@
+import { useEffect, useState } from 'react';
+import ListenerGauge from './ListenerGauge.jsx';
+import ListenerSparkline from './ListenerSparkline.jsx';
+import StatusBadge from './StatusBadge.jsx';
+import StreamStatus from './StreamStatus.jsx';
+import RelativeTime from './RelativeTime.jsx';
+import Clock from './Clock.jsx';
+import WeatherWidget from './WeatherWidget.jsx';
+import CurrencyWidget from './CurrencyWidget.jsx';
+import SettingsPanel from './SettingsPanel.jsx';
+import FontSizeControl from './FontSizeControl.jsx';
+import logoFull from '../assets/sarandi-logo-full.png';
+
+export default function TopBar({ listeners, listenerHistory, weather, currency }) {
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [version, setVersion] = useState('');
+
+  useEffect(() => {
+    window.dashboard.getVersion?.().then(setVersion);
+  }, []);
+
+  return (
+    <div className="top-bar">
+      <img className="top-bar__logo" src={logoFull} alt="Rádio Sarandi 103.3" />
+      <ListenerGauge listeners={listeners} history={listenerHistory} />
+      <ListenerSparkline history={listenerHistory} />
+      <WeatherWidget weather={weather} />
+      <CurrencyWidget currency={currency} />
+      <div className="top-bar__spacer" />
+      <Clock />
+      <div className="top-bar__meta">
+        <StreamStatus />
+        <StatusBadge status={listeners.status} />
+        <span>
+          atualizado <RelativeTime timestamp={listeners.lastUpdated} />
+        </span>
+        <FontSizeControl />
+        <button className="icon-btn" title="Configurações" onClick={() => setSettingsOpen(true)}>
+          ⚙
+        </button>
+        <button
+          className="icon-btn"
+          title="Tela cheia (F11)"
+          onClick={() => window.dashboard.toggleFullscreen()}
+        >
+          ⛶
+        </button>
+        {version && <span className="top-bar__version">v{version}</span>}
+      </div>
+      {settingsOpen && <SettingsPanel onClose={() => setSettingsOpen(false)} />}
+    </div>
+  );
+}

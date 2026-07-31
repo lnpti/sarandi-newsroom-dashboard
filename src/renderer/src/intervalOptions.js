@@ -1,0 +1,79 @@
+export const SETTINGS_LABELS = {
+  listeners: 'Ouvintes online',
+  radioNews: 'Notícias da Sarandi',
+  externalNews: 'Portais de notícias',
+  regionalNews: 'Notícias da região',
+  weather: 'Previsão do tempo',
+  weatherAlerts: 'Alertas de clima severo',
+  currency: 'Cotações (dólar/euro)',
+  football: 'Jogos (Grêmio/Inter)',
+  holidays: 'Próximos feriados',
+  lottery: 'Loterias',
+  saint: 'Santo do dia',
+};
+
+export const INTERVAL_OPTIONS = {
+  listeners: [
+    { label: '15 segundos', ms: 15 * 1000 },
+    { label: '30 segundos', ms: 30 * 1000 },
+    { label: '1 minuto', ms: 60 * 1000 },
+    { label: '2 minutos', ms: 2 * 60 * 1000 },
+    { label: '5 minutos', ms: 5 * 60 * 1000 },
+  ],
+  radioNews: [
+    { label: '1 minuto', ms: 60 * 1000 },
+    { label: '2 minutos', ms: 2 * 60 * 1000 },
+    { label: '4 minutos', ms: 4 * 60 * 1000 },
+    { label: '10 minutos', ms: 10 * 60 * 1000 },
+  ],
+  externalNews: [
+    { label: '2 minutos', ms: 2 * 60 * 1000 },
+    { label: '5 minutos', ms: 5 * 60 * 1000 },
+    { label: '10 minutos', ms: 10 * 60 * 1000 },
+    { label: '15 minutos', ms: 15 * 60 * 1000 },
+  ],
+  regionalNews: [
+    { label: '5 minutos', ms: 5 * 60 * 1000 },
+    { label: '10 minutos', ms: 10 * 60 * 1000 },
+    { label: '15 minutos', ms: 15 * 60 * 1000 },
+    { label: '30 minutos', ms: 30 * 60 * 1000 },
+  ],
+  weather: [
+    { label: '5 minutos', ms: 5 * 60 * 1000 },
+    { label: '15 minutos', ms: 15 * 60 * 1000 },
+    { label: '30 minutos', ms: 30 * 60 * 1000 },
+    { label: '60 minutos', ms: 60 * 60 * 1000 },
+  ],
+  weatherAlerts: [
+    { label: '5 minutos', ms: 5 * 60 * 1000 },
+    { label: '15 minutos', ms: 15 * 60 * 1000 },
+    { label: '30 minutos', ms: 30 * 60 * 1000 },
+    { label: '60 minutos', ms: 60 * 60 * 1000 },
+  ],
+  currency: [
+    { label: '5 minutos', ms: 5 * 60 * 1000 },
+    { label: '10 minutos', ms: 10 * 60 * 1000 },
+    { label: '30 minutos', ms: 30 * 60 * 1000 },
+    { label: '60 minutos', ms: 60 * 60 * 1000 },
+  ],
+  football: [
+    { label: '30 minutos', ms: 30 * 60 * 1000 },
+    { label: '60 minutos', ms: 60 * 60 * 1000 },
+    { label: '3 horas', ms: 3 * 60 * 60 * 1000 },
+  ],
+  holidays: [
+    { label: '6 horas', ms: 6 * 60 * 60 * 1000 },
+    { label: '12 horas', ms: 12 * 60 * 60 * 1000 },
+    { label: '24 horas', ms: 24 * 60 * 60 * 1000 },
+  ],
+  lottery: [
+    { label: '30 minutos', ms: 30 * 60 * 1000 },
+    { label: '60 minutos', ms: 60 * 60 * 1000 },
+    { label: '3 horas', ms: 3 * 60 * 60 * 1000 },
+  ],
+  saint: [
+    { label: '6 horas', ms: 6 * 60 * 60 * 1000 },
+    { label: '12 horas', ms: 12 * 60 * 60 * 1000 },
+    { label: '24 horas', ms: 24 * 60 * 60 * 1000 },
+  ],
+};
