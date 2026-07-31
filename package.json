@@ -31,7 +31,9 @@
     "publish": {
       "provider": "github",
       "owner": "lnpti",
-      "repo": "sarandi-newsroom-dashboard"
+      "repo": "sarandi-newsroom-dashboard",
+      "releaseType": "release",
+      "tagName": "v${version}"
     },
     "directories": {
       "output": "dist"

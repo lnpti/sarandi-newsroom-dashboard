@@ -7,8 +7,9 @@ const CONFIG = {
   'offline':    { dot: 'error',   label: 'offline'  },
 };
 
-export default function StreamStatus() {
-  const status = useStreamStatus();
+// streamStatus vem do snapshot (listeners.data.streamStatus): 0=offline, 1=online
+export default function StreamStatus({ streamStatus }) {
+  const status = useStreamStatus(streamStatus);
   const { dot, label } = CONFIG[status] ?? CONFIG['conectando'];
 
   return (

@@ -22,7 +22,7 @@ export default function TopBar({ listeners, listenerHistory, weather, currency }
   return (
     <div className="top-bar">
       <img className="top-bar__logo" src={logoFull} alt="Rádio Sarandi 103.3" />
-      <StreamStatus />
+      <StreamStatus streamStatus={listeners.data?.streamStatus} />
       <ListenerGauge listeners={listeners} history={listenerHistory} />
       <ListenerSparkline history={listenerHistory} />
       <WeatherWidget weather={weather} />

@@ -18,5 +18,6 @@ export async function fetchListeners() {
     current: extractTag(xml, 'CURRENTLISTENERS'),
     peak: extractTag(xml, 'PEAKLISTENERS'),
     max: extractTag(xml, 'MAXLISTENERS'),
+    streamStatus: extractTag(xml, 'STREAMSTATUS'), // 1 = online, 0 = offline
   };
 }

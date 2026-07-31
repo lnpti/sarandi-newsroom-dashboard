@@ -1,84 +1,89 @@
 import { useEffect, useState } from 'react';
 
 const STREAM_URL = 'https://vp090.voope.com.br/8052/;';
-const STALL_GRACE_MS = 15000; // aguarda 15s de stall antes de declarar offline
-const RETRY_DELAY_MS = 15000; // intervalo entre tentativas após erro
+const SILENCE_THRESHOLD = 0.01;
+const SILENCE_GRACE_MS = 5_000;
 
-export function useStreamStatus() {
+// streamStatus: undefined (carregando) | 0 (offline) | 1 (online)
+export function useStreamStatus(streamStatus) {
   const [status, setStatus] = useState('conectando');
 
   useEffect(() => {
     let active = true;
     let audio = null;
-    let retryTimer = null;
-    let stallTimer = null;
-    let gen = 0;
+    let ctx = null;
+    let analyser = null;
+    let rafId = null;
+    let silentSince = null;
 
-    function teardown() {
-      clearTimeout(retryTimer);
-      clearTimeout(stallTimer);
-      if (audio) {
-        const a = audio;
-        audio = null;
-        a.pause();
-        a.src = '';
-      }
+    function stopAudio() {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+      silentSince = null;
+      if (audio) { audio.pause(); audio.src = ''; audio = null; }
+      if (ctx) { ctx.close().catch(() => {}); ctx = null; analyser = null; }
     }
 
-    function setup() {
-      teardown();
-      if (!active) return;
-
-      const myGen = ++gen;
-      setStatus('conectando');
-
-      const a = new Audio();
-      a.muted = true;
-      audio = a;
-
-      function onPlaying() {
-        if (!active || gen !== myGen) return;
-        clearTimeout(stallTimer);
+    function runAnalysis() {
+      if (!active || !analyser) return;
+      const buf = new Float32Array(analyser.fftSize);
+      analyser.getFloatTimeDomainData(buf);
+      let sum = 0;
+      for (let i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
+      const rms = Math.sqrt(sum / buf.length);
+      if (rms > SILENCE_THRESHOLD) {
+        silentSince = null;
         setStatus('ao-vivo');
+      } else {
+        if (!silentSince) silentSince = Date.now();
+        else if (Date.now() - silentSince >= SILENCE_GRACE_MS) setStatus('silencio');
       }
-
-      function onHardError() {
-        if (!active || gen !== myGen) return;
-        setStatus('offline');
-        teardown();
-        retryTimer = setTimeout(setup, RETRY_DELAY_MS);
-      }
-
-      // stalled/waiting: só declara offline se o problema persistir
-      function startStallTimer() {
-        if (!active || gen !== myGen) return;
-        clearTimeout(stallTimer);
-        stallTimer = setTimeout(onHardError, STALL_GRACE_MS);
-      }
-
-      // se estava ao vivo e parar de receber dados, inicia timer de stall
-      function onPause() {
-        if (!active || gen !== myGen) return;
-        startStallTimer();
-      }
-
-      a.addEventListener('playing', onPlaying);
-      a.addEventListener('error', onHardError);
-      a.addEventListener('stalled', startStallTimer);
-      a.addEventListener('waiting', startStallTimer);
-      a.addEventListener('pause', onPause);
-
-      a.src = STREAM_URL;
-      a.play().catch(onHardError);
+      rafId = requestAnimationFrame(runAnalysis);
     }
 
-    setup();
+    // snapshot ainda carregando
+    if (streamStatus === undefined || streamStatus === null) {
+      return () => { active = false; };
+    }
 
-    return () => {
-      active = false;
-      teardown();
-    };
-  }, []);
+    // offline segundo o servidor
+    if (streamStatus !== 1) {
+      setStatus('offline');
+      return () => { active = false; stopAudio(); };
+    }
+
+    // online — mostra ao-vivo de imediato e tenta análise de silêncio
+    setStatus((prev) => (prev === 'conectando' || prev === 'offline' ? 'ao-vivo' : prev));
+
+    try {
+      audio = new Audio();
+      audio.muted = true;
+
+      ctx = new AudioContext();
+      analyser = ctx.createAnalyser();
+      analyser.fftSize = 1024;
+
+      const gain = ctx.createGain();
+      gain.gain.value = 0;
+
+      ctx.createMediaElementSource(audio).connect(analyser);
+      analyser.connect(gain);
+      gain.connect(ctx.destination);
+
+      audio.addEventListener('playing', () => {
+        if (!active) return;
+        ctx.resume().then(runAnalysis).catch(() => { if (active) setStatus('ao-vivo'); });
+      });
+      audio.addEventListener('error', () => { if (active) setStatus('ao-vivo'); });
+
+      audio.src = STREAM_URL;
+      audio.play().catch(() => { if (active) setStatus('ao-vivo'); });
+    } catch {
+      // Web Audio API indisponível — permanece ao-vivo
+    }
+
+    return () => { active = false; stopAudio(); };
+  }, [streamStatus]);
 
   return status;
 }
