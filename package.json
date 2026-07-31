@@ -28,12 +28,12 @@
   "build": {
     "appId": "com.radiosarandi.newsroom-dashboard",
     "productName": "Sarandi Newsroom Dashboard",
+    "artifactName": "${productName}-Setup-${version}.${ext}",
     "publish": {
       "provider": "github",
       "owner": "lnpti",
       "repo": "sarandi-newsroom-dashboard",
-      "releaseType": "release",
-      "tagName": "v${version}"
+      "releaseType": "release"
     },
     "directories": {
       "output": "dist"
