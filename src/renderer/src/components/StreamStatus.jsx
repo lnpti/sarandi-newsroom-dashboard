@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useStreamStatus } from '../hooks/useStreamStatus.js';
 
 const CONFIG = {
@@ -11,6 +12,17 @@ const CONFIG = {
 export default function StreamStatus({ streamStatus }) {
   const status = useStreamStatus(streamStatus);
   const { dot, label } = CONFIG[status] ?? CONFIG['conectando'];
+
+  const prevRef = useRef(streamStatus);
+  useEffect(() => {
+    const prev = prevRef.current;
+    prevRef.current = streamStatus;
+    // transição online ↔ offline: verifica ouvintes em 5s para refletir a mudança
+    if ((prev === 1 && streamStatus === 0) || (prev === 0 && streamStatus === 1)) {
+      const t = setTimeout(() => window.dashboard.refreshNow('listeners'), 5000);
+      return () => clearTimeout(t);
+    }
+  }, [streamStatus]);
 
   return (
     <div className={`stream-status stream-status--${dot}`} title={`Stream: ${label}`}>

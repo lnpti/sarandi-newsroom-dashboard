@@ -188,8 +188,6 @@ function applyIntervalSettings(pollers, partial) {
 app.whenReady().then(() => {
   Menu.setApplicationMenu(null);
 
-  // Injeta CORS no stream de áudio para que o Web Audio API do renderer
-  // consiga analisar o sinal sem reproduzir som (detecção de silêncio).
   const store = createStore();
   const win = createWindow();
   let settings = loadSettings();
