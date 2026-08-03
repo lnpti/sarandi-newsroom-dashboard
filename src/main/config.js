@@ -6,8 +6,8 @@ export const NEWS_API_KEY = '8f7b3d96c10a42eeab5849f0d76325ca7d93e8638ad11686d80
 export const NEWS_SITE_BASE = 'https://radiosarandi.com.br';
 export const NEWS_IMG_BASE = 'https://radiosarandi.com.br/arquivos/img_noticia_v2/';
 export const NEWS_AUDIO_BASE = 'https://radiosarandi.com.br/arquivos/audio_noticia_v2/';
-export const NEWS_WINDOW_DAYS = 2;
-export const NEWS_ITEM_LIMIT = 20;
+export const NEWS_WINDOW_DAYS = 10;
+export const NEWS_ITEM_LIMIT = 15;
 
 export const RSS_ITEM_LIMIT = 10;
 

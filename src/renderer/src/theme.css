@@ -512,6 +512,23 @@ a {
   color: var(--muted);
 }
 
+.game-row__score {
+  font-weight: 700;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.game-row--result {
+  background: var(--card-border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  border-top: none;
+}
+
+.games-panel__header--upcoming {
+  margin-top: 12px;
+}
+
 .clock {
   display: flex;
   flex-direction: column;

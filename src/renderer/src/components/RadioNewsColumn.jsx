@@ -42,7 +42,7 @@ export default function RadioNewsColumn({ radioNews }) {
     <div className="column column--radio-news">
       <div className="column__header">
         <StatusBadge status={radioNews.status} />
-        <span>Notícias Sarandi</span>
+        <span>Portal Rádio Sarandi</span>
       </div>
       <FeaturedStoriesRow items={featured} />
       <TopStoriesRow items={secondStories} />
