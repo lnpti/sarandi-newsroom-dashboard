@@ -1,9 +1,34 @@
 import Parser from 'rss-parser';
-import { REGIONAL_NEWS_URL, REGIONAL_ITEM_LIMIT } from '../config.js';
+import { REGIONAL_NEWS_URL, REGIONAL_ITEM_LIMIT, REGIONAL_NEWS_WINDOW_DAYS } from '../config.js';
 
 const parser = new Parser();
 
-// Títulos do Google Notícias vêm como "Manchete - Fonte". Separa os dois.
+// O Google Alertas embrulha o link real num redirect (google.com/url?...&url=REAL)
+function unwrapGoogleRedirect(href) {
+  if (!href) return null;
+  try {
+    const real = new URL(href).searchParams.get('url');
+    return real || href;
+  } catch {
+    return href;
+  }
+}
+
+// Entidades HTML que sobram no título por causa de um double-encoding do
+// próprio feed do Google Alertas (ex.: "HOJE&gt; RGE" em vez de "HOJE> RGE").
+const TITLE_ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'", apos: "'", nbsp: ' ' };
+function decodeTitleEntities(str) {
+  return str.replace(/&(#?\w+);/g, (match, code) => TITLE_ENTITIES[code] ?? match);
+}
+
+// O Google Alertas envolve os termos que bateram com a busca em <b> dentro
+// do título (ex.: "... em <b>Carazinho</b>, RS") — remove antes de exibir.
+function cleanTitle(rawTitle) {
+  return decodeTitleEntities((rawTitle || '').replace(/<[^>]+>/g, ''));
+}
+
+// Títulos às vezes vêm como "Manchete - Fonte" (nem sempre — muitos títulos
+// não têm fonte nenhuma no feed do Alertas).
 function splitSource(rawTitle) {
   const title = (rawTitle || '').trim();
   const idx = title.lastIndexOf(' - ');
@@ -21,24 +46,40 @@ function isBlockedSource(source) {
   return /r[aá]dio\s+sarandi/i.test(s) || /minuano/i.test(s);
 }
 
+// Boa parte dessas fontes não vem com nome legível no título (source null) —
+// checa também o domínio do link pra garantir que nada delas escape do bloqueio.
+function isBlockedLink(link) {
+  if (!link) return false;
+  try {
+    const host = new URL(link).hostname.toLowerCase();
+    return /(^|\.)radiosarandi\.com\.br$/.test(host) || /(^|\.)radiominuano\.com\.br$/.test(host);
+  } catch {
+    return false;
+  }
+}
+
 export async function fetchRegionalNews() {
   const feed = await parser.parseURL(REGIONAL_NEWS_URL);
   const seen = new Set();
   const items = [];
+  const cutoff = Date.now() - REGIONAL_NEWS_WINDOW_DAYS * 24 * 60 * 60 * 1000;
 
   for (const item of feed.items || []) {
-    const { title, source } = splitSource(item.title);
+    const { title, source } = splitSource(cleanTitle(item.title));
     if (!title || seen.has(title) || isBlockedSource(source)) continue;
+
+    const link = unwrapGoogleRedirect(item.link);
+    if (isBlockedLink(link)) continue;
+
+    const isoDate = item.isoDate || item.pubDate || null;
+    // O alerta não filtra por data — descarta o que estiver fora da janela recente.
+    if (!isoDate || new Date(isoDate).getTime() < cutoff) continue;
+
     seen.add(title);
-    items.push({
-      id: item.guid || item.link || title,
-      title,
-      source,
-      link: item.link || null,
-      isoDate: item.isoDate || item.pubDate || null,
-    });
-    if (items.length >= REGIONAL_ITEM_LIMIT) break;
+    items.push({ id: item.id || item.guid || link || title, title, source, link, isoDate });
   }
 
-  return items;
+  items.sort((a, b) => new Date(b.isoDate) - new Date(a.isoDate));
+
+  return items.slice(0, REGIONAL_ITEM_LIMIT);
 }

@@ -1,8 +1,14 @@
 import KeywordBadge from './KeywordBadge.jsx';
 
-function timeOf(isoDate) {
+function formatWhen(isoDate) {
   if (!isoDate) return '';
-  return new Date(isoDate).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const d = new Date(isoDate);
+  const today = new Date();
+  const sameDay = d.toDateString() === today.toDateString();
+  const time = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  if (sameDay) return `Hoje ${time}`;
+  const day = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  return `${day} · ${time}`;
 }
 
 export default function RegionalNewsSection({ regional }) {
@@ -32,7 +38,7 @@ export default function RegionalNewsSection({ regional }) {
               <div className="regional-card__meta">
                 {item.source || ''}
                 {item.source && item.isoDate ? ' · ' : ''}
-                {timeOf(item.isoDate)}
+                {formatWhen(item.isoDate)}
               </div>
             </div>
           </a>

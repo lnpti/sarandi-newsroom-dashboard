@@ -519,10 +519,7 @@ a {
 }
 
 .game-row--result {
-  background: var(--card-border);
-  border-radius: 6px;
-  padding: 6px 8px;
-  border-top: none;
+  padding: 6px 0;
 }
 
 .games-panel__header--upcoming {
@@ -870,6 +867,8 @@ a {
   flex-shrink: 0;
   border-left: 1px solid var(--card-border);
   background: var(--bg-elevated);
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 
 .column__header {

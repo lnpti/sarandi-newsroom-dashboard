@@ -32,15 +32,15 @@ export const FOOTBALL_TEAMS = [
   { key: 'inter', name: 'Internacional', espnId: '1936' },
 ];
 
-// Notícias regionais via Google Notícias (sem chave): busca por Sarandi-RS e
-// municípios vizinhos. "Sarandi RS" (em vez de só "Sarandi") reduz o ruído da
-// Sarandi-PR; -"bairro Sarandi" corta o bairro homônimo de Porto Alegre.
-export const REGIONAL_NEWS_QUERY =
-  'Sarandi RS OR Rondinha OR "Ronda Alta" OR "Palmeira das Missões" OR Constantina OR "Nova Boa Vista" OR "Sagrada Família" OR "Coqueiros do Sul" -"bairro Sarandi"';
-export const REGIONAL_NEWS_URL = `https://news.google.com/rss/search?q=${encodeURIComponent(
-  REGIONAL_NEWS_QUERY
-)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`;
-export const REGIONAL_ITEM_LIMIT = 8;
+// Notícias regionais via feed RSS do Google Alertas, configurado em
+// alerts.google.com com a busca: Sarandi RS e municípios vizinhos (Rondinha,
+// Ronda Alta, Constantina, Palmeira das Missões, Nova Boa Vista, Sagrada
+// Família, Coqueiros do Sul, Almirante Tamandaré do Sul, Pontão, Barra Funda,
+// Novo Barreiro, São José das Missões, Carazinho). Trocar a query exige criar
+// um novo alerta e atualizar esta URL.
+export const REGIONAL_NEWS_URL = 'https://www.google.com.br/alerts/feeds/08693795775322126867/9253604654146928066';
+export const REGIONAL_ITEM_LIMIT = 12;
+export const REGIONAL_NEWS_WINDOW_DAYS = 30;
 
 // BrasilAPI — feriados nacionais por ano (sem chave)
 export const HOLIDAYS_URL = 'https://brasilapi.com.br/api/feriados/v1';
