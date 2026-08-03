@@ -30,6 +30,7 @@ function createWindow() {
     ...getInitialBounds(windowState),
     backgroundColor: '#0f1115',
     autoHideMenuBar: true,
+    icon: join(__dirname, '../../build/icon.ico'),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       contextIsolation: true,
