@@ -13,37 +13,47 @@ function formatWhen(isoDate) {
 
 export default function RegionalNewsSection({ regional }) {
   const items = regional?.data;
-  if (!items || items.length === 0) return null;
 
   return (
     <>
       <div className="column__header">
         <span>📍 Notícias da Região</span>
       </div>
-      <div className="regional-grid">
-        {items.map((item) => (
-          <a
-            className="regional-card"
-            key={item.id}
-            href={item.link}
-            target="_blank"
-            rel="noreferrer"
-          >
-            {item.image && <img className="regional-card__img" src={item.image} alt="" />}
-            <div className="regional-card__body">
-              <p className="regional-card__title">
-                {item.title}
-                <KeywordBadge title={item.title} />
-              </p>
-              <div className="regional-card__meta">
-                {item.source || ''}
-                {item.source && item.isoDate ? ' · ' : ''}
-                {formatWhen(item.isoDate)}
+      {(!items || items.length === 0) && regional?.status === 'loading' && (
+        <p style={{ color: 'var(--muted)' }}>Carregando notícias da região…</p>
+      )}
+      {(!items || items.length === 0) && regional?.status === 'error' && (
+        <p style={{ color: 'var(--muted)' }}>Não foi possível carregar as notícias da região.</p>
+      )}
+      {items && items.length === 0 && regional?.status === 'ok' && (
+        <p style={{ color: 'var(--muted)' }}>Nenhuma notícia recente encontrada.</p>
+      )}
+      {items && items.length > 0 && (
+        <div className="regional-grid">
+          {items.map((item) => (
+            <a
+              className="regional-card"
+              key={item.id}
+              href={item.link}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {item.image && <img className="regional-card__img" src={item.image} alt="" />}
+              <div className="regional-card__body">
+                <p className="regional-card__title">
+                  {item.title}
+                  <KeywordBadge title={item.title} />
+                </p>
+                <div className="regional-card__meta">
+                  {item.source || ''}
+                  {item.source && item.isoDate ? ' · ' : ''}
+                  {formatWhen(item.isoDate)}
+                </div>
               </div>
-            </div>
-          </a>
-        ))}
-      </div>
+            </a>
+          ))}
+        </div>
+      )}
     </>
   );
 }

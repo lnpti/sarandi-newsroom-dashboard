@@ -69,7 +69,7 @@ function createWindow() {
   return win;
 }
 
-function startPollers(store, settings) {
+function startPollers(store, settings, getSettings) {
   const pollers = {};
 
   pollers.listeners = createPoller({
@@ -96,7 +96,9 @@ function startPollers(store, settings) {
   pollers.regionalNews = createPoller({
     key: 'regionalNews',
     intervalMs: settings.regionalNews,
-    fetchFn: fetchRegionalNews,
+    // Lê a lista de feeds na hora do fetch (não na criação do poller), para
+    // refletir mudanças feitas na tela de Configurações sem reiniciar o app.
+    fetchFn: () => fetchRegionalNews(getSettings().regionalRssUrls),
     onResult: (key, patch) => store.update(key, patch),
   });
   pollers.regionalNews.start();
@@ -192,17 +194,20 @@ app.whenReady().then(() => {
   const store = createStore();
   const win = createWindow();
   let settings = loadSettings();
-  const pollers = startPollers(store, settings);
+  const getSettings = () => settings;
+  const pollers = startPollers(store, settings, getSettings);
 
   registerIpc({
     win,
     store,
     pollers,
-    getSettings: () => settings,
+    getSettings,
     updateSettings: (partial) => {
       settings = { ...settings, ...partial };
       saveSettings(settings);
       applyIntervalSettings(pollers, partial);
+      // Feeds mudaram: busca de novo já, sem esperar o próximo ciclo do poller.
+      if ('regionalRssUrls' in partial) pollers.regionalNews?.refreshNow();
       return settings;
     },
   });

@@ -10,6 +10,7 @@ import CurrencyWidget from './CurrencyWidget.jsx';
 import SettingsPanel from './SettingsPanel.jsx';
 import FontSizeControl from './FontSizeControl.jsx';
 import logoFull from '../assets/sarandi-logo-full.png';
+import appIcon from '../assets/app-icon.png';
 
 export default function TopBar({ listeners, listenerHistory, weather, currency }) {
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -45,7 +46,12 @@ export default function TopBar({ listeners, listenerHistory, weather, currency }
         >
           ⛶
         </button>
-        {version && <span className="top-bar__version">v{version}</span>}
+        {version && (
+          <span className="top-bar__version">
+            <img className="top-bar__version-icon" src={appIcon} alt="" />
+            v{version}
+          </span>
+        )}
       </div>
       {settingsOpen && <SettingsPanel onClose={() => setSettingsOpen(false)} />}
     </div>

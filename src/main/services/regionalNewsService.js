@@ -1,5 +1,5 @@
 import Parser from 'rss-parser';
-import { REGIONAL_NEWS_URL, REGIONAL_ITEM_LIMIT, REGIONAL_NEWS_WINDOW_DAYS } from '../config.js';
+import { DEFAULT_REGIONAL_RSS_URLS, REGIONAL_ITEM_LIMIT, REGIONAL_NEWS_WINDOW_DAYS } from '../config.js';
 
 const parser = new Parser();
 
@@ -58,25 +58,38 @@ function isBlockedLink(link) {
   }
 }
 
-export async function fetchRegionalNews() {
-  const feed = await parser.parseURL(REGIONAL_NEWS_URL);
-  const seen = new Set();
-  const items = [];
+export async function fetchRegionalNews(urls) {
+  const feedUrls = Array.isArray(urls) && urls.length > 0 ? urls : DEFAULT_REGIONAL_RSS_URLS;
   const cutoff = Date.now() - REGIONAL_NEWS_WINDOW_DAYS * 24 * 60 * 60 * 1000;
 
-  for (const item of feed.items || []) {
-    const { title, source } = splitSource(cleanTitle(item.title));
-    if (!title || seen.has(title) || isBlockedSource(source)) continue;
+  const results = await Promise.allSettled(feedUrls.map((url) => parser.parseURL(url)));
 
-    const link = unwrapGoogleRedirect(item.link);
-    if (isBlockedLink(link)) continue;
+  // Se todos os feeds falharem (ex.: link do Alertas inválido), propaga erro
+  // pro poller marcar status:'error' em vez de silenciosamente esvaziar a lista.
+  if (results.every((r) => r.status === 'rejected')) {
+    throw new Error(results[0].reason?.message || 'Falha ao buscar notícias regionais');
+  }
 
-    const isoDate = item.isoDate || item.pubDate || null;
-    // O alerta não filtra por data — descarta o que estiver fora da janela recente.
-    if (!isoDate || new Date(isoDate).getTime() < cutoff) continue;
+  const seen = new Set();
+  const items = [];
 
-    seen.add(title);
-    items.push({ id: item.id || item.guid || link || title, title, source, link, isoDate });
+  for (const result of results) {
+    if (result.status !== 'fulfilled') continue;
+
+    for (const item of result.value.items || []) {
+      const { title, source } = splitSource(cleanTitle(item.title));
+      if (!title || seen.has(title) || isBlockedSource(source)) continue;
+
+      const link = unwrapGoogleRedirect(item.link);
+      if (isBlockedLink(link)) continue;
+
+      const isoDate = item.isoDate || item.pubDate || null;
+      // O alerta não filtra por data — descarta o que estiver fora da janela recente.
+      if (!isoDate || new Date(isoDate).getTime() < cutoff) continue;
+
+      seen.add(title);
+      items.push({ id: item.id || item.guid || link || title, title, source, link, isoDate });
+    }
   }
 
   items.sort((a, b) => new Date(b.isoDate) - new Date(a.isoDate));

@@ -32,13 +32,12 @@ export const FOOTBALL_TEAMS = [
   { key: 'inter', name: 'Internacional', espnId: '1936' },
 ];
 
-// Notícias regionais via feed RSS do Google Alertas, configurado em
-// alerts.google.com com a busca: Sarandi RS e municípios vizinhos (Rondinha,
-// Ronda Alta, Constantina, Palmeira das Missões, Nova Boa Vista, Sagrada
-// Família, Coqueiros do Sul, Almirante Tamandaré do Sul, Pontão, Barra Funda,
-// Novo Barreiro, São José das Missões, Carazinho). Trocar a query exige criar
-// um novo alerta e atualizar esta URL.
+// Notícias regionais via feed(s) RSS do Google Alertas (alerts.google.com).
+// Esta é só a URL padrão/fallback usada quando a tela de Configurações não
+// tem nenhum feed cadastrado — o usuário pode adicionar outras ali, sem
+// precisar mexer no código.
 export const REGIONAL_NEWS_URL = 'https://www.google.com.br/alerts/feeds/08693795775322126867/9253604654146928066';
+export const DEFAULT_REGIONAL_RSS_URLS = [REGIONAL_NEWS_URL];
 export const REGIONAL_ITEM_LIMIT = 12;
 export const REGIONAL_NEWS_WINDOW_DAYS = 30;
 
