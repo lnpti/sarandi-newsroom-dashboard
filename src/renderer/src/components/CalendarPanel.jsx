@@ -29,27 +29,18 @@ function groupByDay(events) {
   return groups;
 }
 
-// Coluna própria (não um painel dentro da coluna de widgets), sempre visível
-// — mostra cabeçalho + estado (carregando/erro/vazio) em vez de sumir e
-// deixar um vazio sem explicação.
+// Coluna própria (não um painel dentro da coluna de widgets) — some por
+// completo quando não há nenhum compromisso, em vez de reservar espaço vazio.
 export default function CalendarPanel({ calendar }) {
   const events = calendar?.data;
+  if (!events || events.length === 0) return null;
 
   return (
     <div className="column column--flashs">
       <div className="column__header">
         <span>Flashs</span>
       </div>
-      {(!events || events.length === 0) && calendar?.status === 'loading' && (
-        <p style={{ color: 'var(--muted)' }}>Carregando…</p>
-      )}
-      {(!events || events.length === 0) && calendar?.status === 'error' && (
-        <p style={{ color: 'var(--muted)' }}>Não foi possível carregar a agenda.</p>
-      )}
-      {events && events.length === 0 && calendar?.status === 'ok' && (
-        <p style={{ color: 'var(--muted)' }}>Nenhum compromisso nos próximos 7 dias.</p>
-      )}
-      {events && events.length > 0 && groupByDay(events).map((group) => (
+      {groupByDay(events).map((group) => (
         <div key={group.key} className="calendar-day">
           <div className="calendar-day__label">{dayLabel(group.key)}</div>
           {group.events.map((ev) => (
