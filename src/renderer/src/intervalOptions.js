@@ -26,6 +26,12 @@ export const INTERVAL_OPTIONS = {
     { label: '2 minutos', ms: 2 * 60 * 1000 },
     { label: '4 minutos', ms: 4 * 60 * 1000 },
     { label: '10 minutos', ms: 10 * 60 * 1000 },
+    { label: '15 minutos', ms: 15 * 60 * 1000 },
+    { label: '30 minutos', ms: 30 * 60 * 1000 },
+    { label: '45 minutos', ms: 45 * 60 * 1000 },
+    { label: '1 hora', ms: 60 * 60 * 1000 },
+    { label: '2 horas', ms: 2 * 60 * 60 * 1000 },
+    { label: '12 horas', ms: 12 * 60 * 60 * 1000 },
   ],
   externalNews: [
     { label: '2 minutos', ms: 2 * 60 * 1000 },

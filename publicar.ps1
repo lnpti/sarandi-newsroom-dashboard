@@ -37,12 +37,26 @@ if ($confirmacao -notmatch '^[sS]$') {
     exit 0
 }
 
-# Verifica se GH_TOKEN está disponível
+# Pega o token do gh CLI já autenticado nesta máquina — evita ter que digitar
+# ou (pior) salvar o token em algum arquivo. Só usa $env:GH_TOKEN manual como
+# alternativa caso o gh não esteja instalado/logado.
+if (-not $env:GH_TOKEN) {
+    $ghCli = Get-Command gh -ErrorAction SilentlyContinue
+    if ($ghCli) {
+        $ghToken = gh auth token 2>$null
+        if ($LASTEXITCODE -eq 0 -and $ghToken) {
+            $env:GH_TOKEN = $ghToken.Trim()
+        }
+    }
+}
+
 if (-not $env:GH_TOKEN) {
     Write-Host ""
-    Write-Host "ERRO: variável GH_TOKEN não encontrada." -ForegroundColor Red
-    Write-Host "Defina o token antes de publicar:"
+    Write-Host "ERRO: nenhum token do GitHub disponível." -ForegroundColor Red
+    Write-Host "Rode 'gh auth login' uma vez nesta máquina (fica salvo com segurança pelo gh),"
+    Write-Host "ou defina manualmente antes de publicar:"
     Write-Host '  $env:GH_TOKEN = "ghp_seuTokenAqui"'
+    Write-Host "Nunca salve o token dentro de um arquivo do repositório."
     Read-Host "Pressione Enter para fechar"
     exit 1
 }
