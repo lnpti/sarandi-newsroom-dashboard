@@ -1,12 +1,8 @@
-import {
-  NEWS_API_URL,
-  NEWS_API_KEY,
-  NEWS_SITE_BASE,
-  NEWS_IMG_BASE,
-  NEWS_AUDIO_BASE,
-  NEWS_WINDOW_DAYS,
-  NEWS_ITEM_LIMIT,
-} from '../config.js';
+import { stationConfig } from '../stations/index.js';
+
+const { apiUrl: NEWS_API_URL, apiKey: NEWS_API_KEY, siteBase: NEWS_SITE_BASE,
+  imgBase: NEWS_IMG_BASE, audioBase: NEWS_AUDIO_BASE, windowDays: NEWS_WINDOW_DAYS,
+  itemLimit: NEWS_ITEM_LIMIT } = stationConfig.NEWS;
 
 // Mapeamento portado de radiosarandi-app/src/services/noticiasApi.js
 const HTML_ENTITIES = {

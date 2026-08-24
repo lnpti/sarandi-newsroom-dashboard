@@ -1,4 +1,7 @@
-import { INMET_ALERTS_URL, WEATHER_ALERT_CITY_MATCH } from '../config.js';
+import { INMET_ALERTS_URL } from '../config.js';
+import { stationConfig } from '../stations/index.js';
+
+const { WEATHER_ALERT_CITY_MATCH } = stationConfig;
 
 const SEVERITY_RANK = {
   'Grande Perigo': 3,

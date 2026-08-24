@@ -1,23 +1,7 @@
-export const LISTENER_STATS_URL = 'https://vp090.voope.com.br/8052/stats?json=1';
-export const STREAM_URL = 'https://vp090.voope.com.br/8052/;';
-
-export const NEWS_API_URL = 'https://radiosarandi.com.br/api-noticias/';
-export const NEWS_API_KEY = '8f7b3d96c10a42eeab5849f0d76325ca7d93e8638ad11686d807aa15355bd92exx';
-export const NEWS_SITE_BASE = 'https://radiosarandi.com.br';
-export const NEWS_IMG_BASE = 'https://radiosarandi.com.br/arquivos/img_noticia_v2/';
-export const NEWS_AUDIO_BASE = 'https://radiosarandi.com.br/arquivos/audio_noticia_v2/';
-export const NEWS_WINDOW_DAYS = 10;
-export const NEWS_ITEM_LIMIT = 15;
-
 export const RSS_ITEM_LIMIT = 10;
-
-// Mesmas coordenadas de radiosarandi-app/stations/sarandi/config.js
-export const WEATHER_LAT = -27.94389;
-export const WEATHER_LON = -52.92278;
 
 // API pública do INMET com avisos meteorológicos ativos (sem chave)
 export const INMET_ALERTS_URL = 'https://apiprevmet3.inmet.gov.br/avisos/ativos';
-export const WEATHER_ALERT_CITY_MATCH = 'Sarandi - RS';
 
 // AwesomeAPI — cotações de moedas, gratuita e sem chave
 export const CURRENCY_URL = 'https://economia.awesomeapi.com.br/json/last/USD-BRL,EUR-BRL';
@@ -27,17 +11,7 @@ export const CURRENCY_URL = 'https://economia.awesomeapi.com.br/json/last/USD-BR
 // Libertadores/Sul-Americana) — bra.1 sozinho escondia jogos de outras
 // competições e bagunçava a ordem dos próximos jogos.
 export const ESPN_SCHEDULE_BASE = 'https://site.api.espn.com/apis/site/v2/sports/soccer/all/teams';
-export const FOOTBALL_TEAMS = [
-  { key: 'gremio', name: 'Grêmio', espnId: '6273' },
-  { key: 'inter', name: 'Internacional', espnId: '1936' },
-];
 
-// Notícias regionais via feed(s) RSS do Google Alertas (alerts.google.com).
-// Esta é só a URL padrão/fallback usada quando a tela de Configurações não
-// tem nenhum feed cadastrado — o usuário pode adicionar outras ali, sem
-// precisar mexer no código.
-export const REGIONAL_NEWS_URL = 'https://www.google.com.br/alerts/feeds/08693795775322126867/9253604654146928066';
-export const DEFAULT_REGIONAL_RSS_URLS = [REGIONAL_NEWS_URL];
 export const REGIONAL_ITEM_LIMIT = 12;
 export const REGIONAL_NEWS_WINDOW_DAYS = 30;
 

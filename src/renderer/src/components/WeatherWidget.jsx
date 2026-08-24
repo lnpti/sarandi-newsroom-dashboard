@@ -1,4 +1,5 @@
 import { iconForCode } from '../weatherIcons.js';
+import { CITY_LABEL } from '@station-assets/info.js';
 
 export default function WeatherWidget({ weather }) {
   const data = weather.data;
@@ -7,7 +8,7 @@ export default function WeatherWidget({ weather }) {
     <div className="weather">
       <span className="weather__icon">{iconForCode(data.code)}</span>
       <span className="weather__temp">{data.temp}°C</span>
-      <span className="weather__label">Sarandi</span>
+      <span className="weather__label">{CITY_LABEL}</span>
     </div>
   );
 }

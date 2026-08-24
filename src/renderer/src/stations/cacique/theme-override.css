@@ -1,0 +1,13 @@
+/* Cor de marca da Tua Rádio Cacique (azul extraído de tuaradio.com.br),
+   sobrescrevendo o vermelho padrão nos temas Escuro e Claro. O tema Dracula
+   mantém sua própria identidade visual (roxo), sem relação com a marca. */
+
+:root {
+  --accent: #003b99;
+  --accent-soft: rgba(0, 59, 153, 0.12);
+}
+
+:root[data-theme='light'] {
+  --accent: #003b99;
+  --accent-soft: rgba(0, 59, 153, 0.1);
+}

@@ -1,6 +1,6 @@
 export const SETTINGS_LABELS = {
   listeners: 'Ouvintes online',
-  radioNews: 'Notícias da Sarandi',
+  radioNews: 'Notícias da rádio',
   externalNews: 'Portais de notícias',
   regionalNews: 'Notícias da região',
   weather: 'Previsão do tempo',

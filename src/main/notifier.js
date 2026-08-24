@@ -1,4 +1,5 @@
 import { Notification, shell } from 'electron';
+import { stationConfig } from './stations/index.js';
 
 // Notifica só o que é genuinamente novo desde a última busca. Se `previousItems`
 // for null (primeiro carregamento, sem cache de sessão anterior), não notifica
@@ -11,7 +12,7 @@ export function notifyNewRadioNews(previousItems, newItems) {
 
   for (const item of fresh) {
     const notification = new Notification({
-      title: 'Nova notícia — Rádio Sarandi',
+      title: `Nova notícia — ${stationConfig.RADIO_NAME}`,
       body: item.titulo,
     });
     notification.on('click', () => shell.openExternal(item.url));

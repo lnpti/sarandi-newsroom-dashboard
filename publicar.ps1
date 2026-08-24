@@ -1,14 +1,18 @@
-# publicar.ps1 — commita, versiona e publica o Sarandi Newsroom Dashboard
-# Uso: .\publicar.ps1 [versão]
+# publicar.ps1 — commita, versiona e publica o dashboard (Sarandi ou Cacique)
+# Uso: .\publicar.ps1 [versão] [-Estacao sarandi|cacique]
 # Exemplos:
-#   .\publicar.ps1          → incrementa o patch automaticamente (1.0.5 → 1.0.6)
-#   .\publicar.ps1 1.1.0    → define a versão explicitamente
+#   .\publicar.ps1                        → Sarandi, incrementa o patch (1.0.5 → 1.0.6)
+#   .\publicar.ps1 1.1.0                  → Sarandi, versão explícita
+#   .\publicar.ps1 -Estacao cacique       → Cacique, incrementa o patch
 
 param(
-    [string]$Versao = ""
+    [string]$Versao = "",
+    [ValidateSet("sarandi", "cacique")]
+    [string]$Estacao = "sarandi"
 )
 
 Set-Location $PSScriptRoot
+$env:STATION = $Estacao
 
 # Lê a versão atual do package.json
 $versaoAtual = (Get-Content "package.json" -Raw | ConvertFrom-Json).version
@@ -21,6 +25,7 @@ if ($Versao -eq "") {
 }
 
 Write-Host ""
+Write-Host "Emissora     : $Estacao"
 Write-Host "Versão atual : $versaoAtual"
 Write-Host "Nova versão  : $Versao"
 Write-Host ""
@@ -38,6 +43,16 @@ if (-not $env:GH_TOKEN) {
     Write-Host "ERRO: variável GH_TOKEN não encontrada." -ForegroundColor Red
     Write-Host "Defina o token antes de publicar:"
     Write-Host '  $env:GH_TOKEN = "ghp_seuTokenAqui"'
+    Read-Host "Pressione Enter para fechar"
+    exit 1
+}
+
+# Cacique depende do Firecrawl pra notícias — a chave vem do .env local
+# (nunca commitado) e é embutida no build. Sem o arquivo, o app empacotado
+# não conseguiria buscar notícias.
+if ($Estacao -eq "cacique" -and -not (Test-Path ".env")) {
+    Write-Host ""
+    Write-Host "ERRO: arquivo .env não encontrado (precisa de MAIN_VITE_FIRECRAWL_API_KEY)." -ForegroundColor Red
     Read-Host "Pressione Enter para fechar"
     exit 1
 }

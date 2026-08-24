@@ -1,5 +1,8 @@
 import Parser from 'rss-parser';
-import { DEFAULT_REGIONAL_RSS_URLS, REGIONAL_ITEM_LIMIT, REGIONAL_NEWS_WINDOW_DAYS } from '../config.js';
+import { REGIONAL_ITEM_LIMIT, REGIONAL_NEWS_WINDOW_DAYS } from '../config.js';
+import { stationConfig } from '../stations/index.js';
+
+const { DEFAULT_REGIONAL_RSS_URLS } = stationConfig;
 
 const parser = new Parser();
 

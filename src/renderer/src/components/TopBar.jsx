@@ -9,7 +9,9 @@ import WeatherWidget from './WeatherWidget.jsx';
 import CurrencyWidget from './CurrencyWidget.jsx';
 import SettingsPanel from './SettingsPanel.jsx';
 import FontSizeControl from './FontSizeControl.jsx';
-import logoFull from '../assets/sarandi-logo-full.png';
+import logoDark from '@station-assets/logo-dark.png';
+import logoLight from '@station-assets/logo-light.png';
+import { RADIO_NAME } from '@station-assets/info.js';
 import appIcon from '../assets/app-icon.png';
 
 export default function TopBar({ listeners, listenerHistory, weather, currency }) {
@@ -22,7 +24,8 @@ export default function TopBar({ listeners, listenerHistory, weather, currency }
 
   return (
     <div className="top-bar">
-      <img className="top-bar__logo" src={logoFull} alt="Rádio Sarandi 103.3" />
+      <img className="top-bar__logo top-bar__logo--dark" src={logoDark} alt={RADIO_NAME} />
+      <img className="top-bar__logo top-bar__logo--light" src={logoLight} alt={RADIO_NAME} />
       <StreamStatus streamStatus={listeners.data?.streamStatus} />
       <ListenerGauge listeners={listeners} history={listenerHistory} />
       <ListenerSparkline history={listenerHistory} />

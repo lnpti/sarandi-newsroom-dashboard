@@ -1,4 +1,7 @@
-import { ESPN_SCHEDULE_BASE, FOOTBALL_TEAMS } from '../config.js';
+import { ESPN_SCHEDULE_BASE } from '../config.js';
+import { stationConfig } from '../stations/index.js';
+
+const { FOOTBALL_TEAMS } = stationConfig;
 
 const GAMES_PER_TEAM = 2;
 

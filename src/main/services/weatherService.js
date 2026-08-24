@@ -1,4 +1,6 @@
-import { WEATHER_LAT, WEATHER_LON } from '../config.js';
+import { stationConfig } from '../stations/index.js';
+
+const { WEATHER_LAT, WEATHER_LON } = stationConfig;
 
 const WEATHER_URL =
   `https://api.open-meteo.com/v1/forecast?latitude=${WEATHER_LAT}&longitude=${WEATHER_LON}` +

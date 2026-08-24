@@ -6,8 +6,11 @@ import { createStore } from './store.js';
 import { createPoller } from './poller.js';
 import { registerIpc } from './ipc.js';
 import { loadSettings, saveSettings } from './settingsStore.js';
-import { fetchListeners } from './services/listenersService.js';
-import { fetchRadioNews } from './services/radioNewsService.js';
+import { stationConfig } from './stations/index.js';
+import { fetchStreamStatus as fetchShoutcastStatus } from './services/streamStatus/shoutcast.js';
+import { fetchStreamStatus as fetchIcecastStatus } from './services/streamStatus/icecast.js';
+import { fetchRadioNews as fetchCustomApiNews } from './services/radioNewsService.js';
+import { fetchRadioNews as fetchFirecrawlNews } from './services/news/firecrawlNewsService.js';
 import { fetchPortal } from './services/rssService.js';
 import { FEED_SOURCES } from './services/feedSources.js';
 import { fetchRegionalNews } from './services/regionalNewsService.js';
@@ -24,13 +27,31 @@ import { loadWindowState, getInitialBounds, attachWindowState } from './windowSt
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
+// Nome do app derivado da emissora ativa — chamado antes de qualquer
+// app.getPath('userData'), pra cada emissora ter sua própria pasta de
+// settings/cache quando testadas na mesma máquina.
+app.setName(stationConfig.RADIO_NAME);
+
+// Mesmo ícone do PlayNews em qualquer emissora.
+const ICON_PATH = join(__dirname, '../../build/icon.ico');
+
+function fetchStreamStatus() {
+  return stationConfig.STREAM_STATUS.type === 'icecast'
+    ? fetchIcecastStatus(stationConfig.STREAM_STATUS.url)
+    : fetchShoutcastStatus(stationConfig.STREAM_STATUS.url);
+}
+
+function fetchRadioNews() {
+  return stationConfig.NEWS.type === 'firecrawl' ? fetchFirecrawlNews() : fetchCustomApiNews();
+}
+
 function createWindow() {
   const windowState = loadWindowState();
   const win = new BrowserWindow({
     ...getInitialBounds(windowState),
     backgroundColor: '#0f1115',
     autoHideMenuBar: true,
-    icon: join(__dirname, '../../build/icon.ico'),
+    icon: ICON_PATH,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       contextIsolation: true,
@@ -75,7 +96,7 @@ function startPollers(store, settings, getSettings) {
   pollers.listeners = createPoller({
     key: 'listeners',
     intervalMs: settings.listeners,
-    fetchFn: fetchListeners,
+    fetchFn: fetchStreamStatus,
     onResult: (key, patch) => store.update(key, patch),
   });
   pollers.listeners.start();

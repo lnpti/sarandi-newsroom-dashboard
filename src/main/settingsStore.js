@@ -1,14 +1,15 @@
 import { app } from 'electron';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { DEFAULT_POLL_INTERVALS_MS, DEFAULT_REGIONAL_RSS_URLS } from './config.js';
+import { DEFAULT_POLL_INTERVALS_MS } from './config.js';
+import { stationConfig } from './stations/index.js';
 
 function settingsPath() {
   return join(app.getPath('userData'), 'settings.json');
 }
 
 function defaults() {
-  return { ...DEFAULT_POLL_INTERVALS_MS, regionalRssUrls: DEFAULT_REGIONAL_RSS_URLS };
+  return { ...DEFAULT_POLL_INTERVALS_MS, regionalRssUrls: stationConfig.DEFAULT_REGIONAL_RSS_URLS };
 }
 
 export function loadSettings() {

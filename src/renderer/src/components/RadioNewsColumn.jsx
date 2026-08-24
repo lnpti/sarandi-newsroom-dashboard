@@ -3,6 +3,7 @@ import StatusBadge from './StatusBadge.jsx';
 import RadioNewsCard from './RadioNewsCard.jsx';
 import TopStoriesRow from './TopStoriesRow.jsx';
 import FeaturedStoriesRow from './FeaturedStoriesRow.jsx';
+import { RADIO_NAME } from '@station-assets/info.js';
 
 // 1º carrossel: destaque grande + 1 normal ao lado (2 notícias).
 const FEATURED_SIZE = 2;
@@ -42,7 +43,7 @@ export default function RadioNewsColumn({ radioNews }) {
     <div className="column column--radio-news">
       <div className="column__header">
         <StatusBadge status={radioNews.status} />
-        <span>Portal Rádio Sarandi</span>
+        <span>{RADIO_NAME}</span>
       </div>
       <FeaturedStoriesRow items={featured} />
       <TopStoriesRow items={secondStories} />
