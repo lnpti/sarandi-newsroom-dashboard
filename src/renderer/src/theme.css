@@ -344,6 +344,56 @@ a {
   border-top: 1px solid var(--card-border);
 }
 
+.calendar-day + .calendar-day {
+  margin-top: 6px;
+}
+
+.calendar-day__label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-top: 4px;
+}
+
+.calendar-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 6px 0;
+  border-top: 1px solid var(--card-border);
+}
+
+.calendar-row__time {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  min-width: 42px;
+}
+
+.calendar-row__main {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.calendar-row__title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.calendar-row__location {
+  font-size: 11px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .lottery-row__head {
   display: flex;
   align-items: baseline;
@@ -1028,6 +1078,12 @@ a {
   background: var(--bg-elevated);
   padding-top: 5px;
   padding-bottom: 5px;
+}
+
+.column--flashs {
+  width: 220px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--card-border);
 }
 
 .column__header {

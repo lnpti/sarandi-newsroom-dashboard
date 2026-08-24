@@ -9,7 +9,11 @@ function settingsPath() {
 }
 
 function defaults() {
-  return { ...DEFAULT_POLL_INTERVALS_MS, regionalRssUrls: stationConfig.DEFAULT_REGIONAL_RSS_URLS };
+  return {
+    ...DEFAULT_POLL_INTERVALS_MS,
+    regionalRssUrls: stationConfig.DEFAULT_REGIONAL_RSS_URLS,
+    calendarIcsUrl: '',
+  };
 }
 
 export function loadSettings() {

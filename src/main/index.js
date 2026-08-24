@@ -21,6 +21,7 @@ import { fetchFootball } from './services/footballService.js';
 import { fetchHolidays } from './services/holidaysService.js';
 import { fetchLottery } from './services/lotteryService.js';
 import { fetchSaint } from './services/saintService.js';
+import { fetchCalendar } from './services/calendarService.js';
 import { notifyNewRadioNews } from './notifier.js';
 import { setupAutoUpdater, consumeFullscreenFlag } from './updater.js';
 import { loadWindowState, getInitialBounds, attachWindowState } from './windowState.js';
@@ -180,6 +181,16 @@ function startPollers(store, settings, getSettings) {
   });
   pollers.saint.start();
 
+  pollers.calendar = createPoller({
+    key: 'calendar',
+    intervalMs: settings.calendar,
+    // Lê a URL na hora do fetch (não na criação do poller), pra refletir
+    // mudanças feitas na tela de Configurações sem reiniciar o app.
+    fetchFn: () => fetchCalendar(getSettings().calendarIcsUrl),
+    onResult: (key, patch) => store.update(key, patch),
+  });
+  pollers.calendar.start();
+
   FEED_SOURCES.forEach((source, index) => {
     const storeKey = `externalNews:${source.key}`;
     const poller = createPoller({
@@ -227,8 +238,9 @@ app.whenReady().then(() => {
       settings = { ...settings, ...partial };
       saveSettings(settings);
       applyIntervalSettings(pollers, partial);
-      // Feeds mudaram: busca de novo já, sem esperar o próximo ciclo do poller.
+      // Feeds/URL mudaram: busca de novo já, sem esperar o próximo ciclo do poller.
       if ('regionalRssUrls' in partial) pollers.regionalNews?.refreshNow();
+      if ('calendarIcsUrl' in partial) pollers.calendar?.refreshNow();
       return settings;
     },
   });

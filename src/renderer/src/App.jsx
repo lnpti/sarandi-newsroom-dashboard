@@ -4,6 +4,7 @@ import RadioNewsColumn from './components/RadioNewsColumn.jsx';
 import ExternalNewsColumn from './components/ExternalNewsColumn.jsx';
 import RegionalNewsSection from './components/RegionalNewsSection.jsx';
 import WeatherForecast from './components/WeatherForecast.jsx';
+import CalendarPanel from './components/CalendarPanel.jsx';
 import GamesPanel from './components/GamesPanel.jsx';
 import HolidaysPanel from './components/HolidaysPanel.jsx';
 import LotteryPanel from './components/LotteryPanel.jsx';
@@ -33,6 +34,7 @@ export default function App() {
           <HolidaysPanel holidays={snapshot.holidays} />
           <SaintPanel saint={snapshot.saint} />
         </div>
+        <CalendarPanel calendar={snapshot.calendar} />
       </div>
       <TopBar
         listeners={snapshot.listeners}

@@ -6,6 +6,7 @@ const TABS = [
   { id: 'geral', label: 'Geral' },
   { id: 'frequencias', label: 'Frequências' },
   { id: 'regional', label: 'Notícias da região' },
+  { id: 'agenda', label: 'Agenda' },
 ];
 
 // Agrupa as frequências por assunto em vez de uma lista única de 11 itens.
@@ -13,7 +14,7 @@ const FREQUENCY_GROUPS = [
   { title: 'Rádio', keys: ['listeners', 'radioNews'] },
   { title: 'Notícias', keys: ['externalNews', 'regionalNews'] },
   { title: 'Clima', keys: ['weather', 'weatherAlerts'] },
-  { title: 'Outros', keys: ['currency', 'football', 'holidays', 'lottery', 'saint'] },
+  { title: 'Outros', keys: ['currency', 'football', 'holidays', 'lottery', 'saint', 'calendar'] },
 ];
 
 export default function SettingsPanel({ onClose }) {
@@ -23,9 +24,13 @@ export default function SettingsPanel({ onClose }) {
   const [refreshing, setRefreshing] = useState(false);
   const [updateState, setUpdateState] = useState(null);
   const [newFeedUrl, setNewFeedUrl] = useState('');
+  const [icsUrl, setIcsUrl] = useState('');
 
   useEffect(() => {
-    window.dashboard.getSettings().then(setSettings);
+    window.dashboard.getSettings().then((s) => {
+      setSettings(s);
+      setIcsUrl(s.calendarIcsUrl || '');
+    });
   }, []);
 
   function handleChange(key, ms) {
@@ -51,6 +56,18 @@ export default function SettingsPanel({ onClose }) {
     const updated = (settings.regionalRssUrls || []).filter((u) => u !== url);
     setSettings((prev) => ({ ...prev, regionalRssUrls: updated }));
     window.dashboard.updateSettings({ regionalRssUrls: updated });
+  }
+
+  function handleSaveIcsUrl() {
+    const url = icsUrl.trim();
+    setSettings((prev) => ({ ...prev, calendarIcsUrl: url }));
+    window.dashboard.updateSettings({ calendarIcsUrl: url });
+  }
+
+  function handleClearIcsUrl() {
+    setIcsUrl('');
+    setSettings((prev) => ({ ...prev, calendarIcsUrl: '' }));
+    window.dashboard.updateSettings({ calendarIcsUrl: '' });
   }
 
   useEffect(() => {
@@ -185,6 +202,40 @@ export default function SettingsPanel({ onClose }) {
                 />
                 <button onClick={handleAddFeed} disabled={!newFeedUrl.trim()}>
                   + Adicionar
+                </button>
+              </div>
+            </div>
+          )}
+
+          {tab === 'agenda' && settings && (
+            <div className="settings-rss">
+              <p className="settings-rss__hint">
+                Link ICS do calendário do Outlook. No Outlook na Web: Configurações ⚙ → Calendário →
+                Calendários compartilhados → Publicação de calendário. Mostra os eventos dos próximos 7 dias.
+              </p>
+              {!settings.calendarIcsUrl && (
+                <p className="settings-rss__empty">Nenhum calendário cadastrado.</p>
+              )}
+              {settings.calendarIcsUrl && (
+                <div className="settings-rss__item">
+                  <span className="settings-rss__url" title={settings.calendarIcsUrl}>
+                    {settings.calendarIcsUrl}
+                  </span>
+                  <button className="settings-rss__remove" onClick={handleClearIcsUrl} title="Remover">
+                    ✕
+                  </button>
+                </div>
+              )}
+              <div className="settings-rss__add">
+                <input
+                  type="text"
+                  placeholder="Cole o link ICS do calendário"
+                  value={icsUrl}
+                  onChange={(e) => setIcsUrl(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSaveIcsUrl()}
+                />
+                <button onClick={handleSaveIcsUrl} disabled={!icsUrl.trim() || icsUrl.trim() === settings.calendarIcsUrl}>
+                  Salvar
                 </button>
               </div>
             </div>

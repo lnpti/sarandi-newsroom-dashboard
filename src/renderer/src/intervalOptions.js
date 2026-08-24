@@ -10,6 +10,7 @@ export const SETTINGS_LABELS = {
   holidays: 'Próximos feriados',
   lottery: 'Loterias',
   saint: 'Santo do dia',
+  calendar: 'Agenda (Outlook)',
 };
 
 export const INTERVAL_OPTIONS = {
@@ -75,5 +76,11 @@ export const INTERVAL_OPTIONS = {
     { label: '6 horas', ms: 6 * 60 * 60 * 1000 },
     { label: '12 horas', ms: 12 * 60 * 60 * 1000 },
     { label: '24 horas', ms: 24 * 60 * 60 * 1000 },
+  ],
+  calendar: [
+    { label: '5 minutos', ms: 5 * 60 * 1000 },
+    { label: '15 minutos', ms: 15 * 60 * 1000 },
+    { label: '30 minutos', ms: 30 * 60 * 1000 },
+    { label: '60 minutos', ms: 60 * 60 * 1000 },
   ],
 };
