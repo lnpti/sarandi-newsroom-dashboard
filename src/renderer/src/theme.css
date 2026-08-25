@@ -1548,17 +1548,21 @@ a {
   padding: 5px 14px;
 }
 
-/* Regionais */
+/* Regionais — notícias da região nunca têm imagem (vêm do Google Alertas,
+   que não fornece nenhuma), então os cards são só texto. Sem isso, o grid
+   esticava cada linha pra ocupar a altura toda (align-content padrão do CSS
+   Grid é "stretch"), deixando um vão vazio enorme embaixo do título curto. */
 .kiosk-regional-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  align-content: center;
+  gap: 22px;
   height: 100%;
   overflow: hidden;
 }
 
 .kiosk-slide--regional .regional-card {
-  padding: 14px 16px;
+  padding: 20px 22px;
 }
 
 .kiosk-slide--regional .regional-card__img {
@@ -1567,11 +1571,13 @@ a {
 }
 
 .kiosk-slide--regional .regional-card__title {
-  font-size: 18px !important;
+  font-size: 21px !important;
+  line-height: 1.4 !important;
 }
 
 .kiosk-slide--regional .regional-card__meta {
-  font-size: 14px !important;
+  font-size: 15px !important;
+  margin-top: 6px;
 }
 
 /* Clima */

@@ -37,6 +37,14 @@ export default function CitySearchBox({ placeholder, onSelect }) {
     setResults([]);
   }
 
+  // mousedown (não click) — dispara antes do input perder o foco, que é
+  // exatamente quando o clique num item de uma lista de sugestões costuma
+  // "sumir" (o blur do input processa antes do click chegar no botão).
+  function handleResultMouseDown(event, result) {
+    event.preventDefault();
+    handleSelect(result);
+  }
+
   return (
     <div className="city-search">
       <div className="settings-rss__add">
@@ -51,7 +59,12 @@ export default function CitySearchBox({ placeholder, onSelect }) {
       {results.length > 0 && (
         <div className="city-search__results">
           {results.map((r) => (
-            <button key={r.id} type="button" className="city-search__result" onClick={() => handleSelect(r)}>
+            <button
+              key={r.id}
+              type="button"
+              className="city-search__result"
+              onMouseDown={(e) => handleResultMouseDown(e, r)}
+            >
               {r.name}
               {r.admin1 ? `, ${r.admin1}` : ''}
               {r.country ? ` — ${r.country}` : ''}

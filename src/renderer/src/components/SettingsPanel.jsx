@@ -33,6 +33,7 @@ export default function SettingsPanel({ kiosk, onUpdateKiosk, onClose }) {
   const [newFeedUrl, setNewFeedUrl] = useState('');
   const [icsUrl, setIcsUrl] = useState('');
   const [youtubeUrlInput, setYoutubeUrlInput] = useState('');
+  const [extraCityNotice, setExtraCityNotice] = useState('');
 
   useEffect(() => {
     window.dashboard.getSettings().then((s) => {
@@ -99,7 +100,13 @@ export default function SettingsPanel({ kiosk, onUpdateKiosk, onClose }) {
 
   function handleAddExtraCity(city) {
     const current = settings.weatherExtraCities || [];
-    if (current.some((c) => c.label === city.name)) return;
+    if (current.some((c) => c.label === city.name)) {
+      // Clicar de novo numa cidade que já está na lista não fazia nada
+      // visível — parecia que o clique tinha sido ignorado.
+      setExtraCityNotice(`"${city.name}" já está na lista.`);
+      setTimeout(() => setExtraCityNotice(''), 3000);
+      return;
+    }
     const updated = [...current, { label: city.name, lat: city.lat, lon: city.lon }];
     setSettings((prev) => ({ ...prev, weatherExtraCities: updated }));
     window.dashboard.updateSettings({ weatherExtraCities: updated });
@@ -283,6 +290,7 @@ export default function SettingsPanel({ kiosk, onUpdateKiosk, onClose }) {
                   </button>
                 </div>
               ))}
+              {extraCityNotice && <p className="settings-rss__hint">{extraCityNotice}</p>}
               <CitySearchBox placeholder="Adicionar cidade…" onSelect={handleAddExtraCity} />
             </div>
           )}
