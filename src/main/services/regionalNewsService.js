@@ -61,6 +61,55 @@ function isBlockedLink(link) {
   }
 }
 
+// O feed do Google Alertas não traz imagem nenhuma (só título/link/data) — só
+// as N primeiras notícias (as que realmente vão aparecer) valem a pena buscar
+// a imagem de capa direto na página do artigo, senão viraria uma requisição
+// extra por notícia a cada atualização.
+const IMAGE_FETCH_LIMIT = 8;
+const IMAGE_FETCH_TIMEOUT_MS = 6000;
+
+function extractOgImage(html) {
+  const metaTags = html.match(/<meta\s+[^>]*>/gi) || [];
+  for (const tag of metaTags) {
+    if (!/property=["']og:image["']/i.test(tag)) continue;
+    const match = tag.match(/content=["']([^"']+)["']/i);
+    if (match) return match[1].replace(/&amp;/g, '&');
+  }
+  return null;
+}
+
+async function fetchOgImage(url) {
+  if (!url) return null;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), IMAGE_FETCH_TIMEOUT_MS);
+  try {
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; PlayNews/1.0)' },
+    });
+    if (!response.ok) return null;
+    const html = await response.text();
+    const image = extractOgImage(html);
+    return image ? new URL(image, url).href : null;
+  } catch {
+    // Site fora do ar, bloqueando scraping, ou demorando demais — segue sem
+    // imagem pra essa notícia em vez de travar a coluna inteira.
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function attachImages(items) {
+  return Promise.all(
+    items.map(async (item, i) => {
+      if (i >= IMAGE_FETCH_LIMIT) return item;
+      const image = await fetchOgImage(item.link);
+      return { ...item, image };
+    })
+  );
+}
+
 export async function fetchRegionalNews(urls) {
   const feedUrls = Array.isArray(urls) && urls.length > 0 ? urls : DEFAULT_REGIONAL_RSS_URLS;
   const cutoff = Date.now() - REGIONAL_NEWS_WINDOW_DAYS * 24 * 60 * 60 * 1000;
@@ -97,5 +146,5 @@ export async function fetchRegionalNews(urls) {
 
   items.sort((a, b) => new Date(b.isoDate) - new Date(a.isoDate));
 
-  return items.slice(0, REGIONAL_ITEM_LIMIT);
+  return attachImages(items.slice(0, REGIONAL_ITEM_LIMIT));
 }
