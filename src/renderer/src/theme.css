@@ -349,7 +349,7 @@ a {
 }
 
 .calendar-day__label {
-  font-size: calc(14px * var(--news-font-scale));
+  font-size: calc(18px * var(--news-font-scale));
   font-weight: 700;
   color: var(--accent);
   text-transform: uppercase;
@@ -361,17 +361,17 @@ a {
   display: flex;
   align-items: baseline;
   gap: 10px;
-  padding: 7px 0;
+  padding: 8px 0;
   border-top: 1px solid var(--card-border);
 }
 
 .calendar-row__time {
   flex-shrink: 0;
-  font-size: calc(15px * var(--news-font-scale));
+  font-size: calc(19px * var(--news-font-scale));
   font-weight: 600;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
-  min-width: 48px;
+  min-width: 58px;
 }
 
 .calendar-row__main {
@@ -382,12 +382,12 @@ a {
 }
 
 .calendar-row__title {
-  font-size: calc(17px * var(--news-font-scale));
+  font-size: calc(21px * var(--news-font-scale));
   font-weight: 600;
 }
 
 .calendar-row__location {
-  font-size: calc(14px * var(--news-font-scale));
+  font-size: calc(18px * var(--news-font-scale));
   color: var(--muted);
   overflow: hidden;
   text-overflow: ellipsis;
