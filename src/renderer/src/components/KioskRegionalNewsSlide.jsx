@@ -12,7 +12,7 @@ function formatWhen(isoDate) {
 }
 
 export default function KioskRegionalNewsSlide({ regionalNews }) {
-  const items = (regionalNews?.data || []).slice(0, 8);
+  const items = (regionalNews?.data || []).slice(0, 12);
 
   return (
     <div className="kiosk-slide kiosk-slide--regional">

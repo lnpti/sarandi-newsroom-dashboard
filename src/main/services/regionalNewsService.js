@@ -65,7 +65,7 @@ function isBlockedLink(link) {
 // as N primeiras notícias (as que realmente vão aparecer) valem a pena buscar
 // a imagem de capa direto na página do artigo, senão viraria uma requisição
 // extra por notícia a cada atualização.
-const IMAGE_FETCH_LIMIT = 8;
+const IMAGE_FETCH_LIMIT = 12;
 const IMAGE_FETCH_TIMEOUT_MS = 6000;
 
 function extractOgImage(html) {

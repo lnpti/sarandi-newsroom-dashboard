@@ -1548,35 +1548,36 @@ a {
   padding: 5px 14px;
 }
 
-/* Regionais — notícias da região nunca têm imagem (vêm do Google Alertas,
-   que não fornece nenhuma), então os cards são só texto. Sem isso, o grid
-   esticava cada linha pra ocupar a altura toda (align-content padrão do CSS
-   Grid é "stretch"), deixando um vão vazio enorme embaixo do título curto. */
+/* Regionais — quando não tem imagem (nem toda notícia da região consegue uma
+   via scraping), o grid centraliza as linhas em vez de esticá-las (o
+   align-content padrão do CSS Grid é "stretch", que deixava um vão vazio
+   embaixo do título nos cards sem foto). 12 itens em 2 colunas = 6 linhas,
+   por isso o padding/gap é mais enxuto que os outros slides de notícia. */
 .kiosk-regional-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   align-content: center;
-  gap: 22px;
+  gap: 14px;
   height: 100%;
   overflow: hidden;
 }
 
 .kiosk-slide--regional .regional-card {
-  padding: 20px 22px;
+  padding: 14px 16px;
 }
 
 .kiosk-slide--regional .regional-card__img {
-  width: 90px;
-  height: 90px;
+  width: 100px;
+  height: 100px;
 }
 
 .kiosk-slide--regional .regional-card__title {
-  font-size: 21px !important;
-  line-height: 1.4 !important;
+  font-size: 22px !important;
+  line-height: 1.35 !important;
 }
 
 .kiosk-slide--regional .regional-card__meta {
-  font-size: 15px !important;
+  font-size: 16px !important;
   margin-top: 6px;
 }
 
