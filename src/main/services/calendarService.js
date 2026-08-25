@@ -2,11 +2,11 @@ import ical from 'node-ical';
 
 const WINDOW_DAYS = 7;
 
-// Próximos 7 dias (hoje incluso) no fuso de Brasília — mesmo padrão de fuso
-// já usado na previsão do tempo (America/Sao_Paulo).
+// A partir de agora (não da meia-noite de hoje) até 7 dias à frente — assim
+// um flash de hoje de manhã some da lista sozinho depois que o horário passa,
+// em vez de continuar aparecendo o dia inteiro.
 function windowBounds() {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+  const start = new Date();
   const end = new Date(start);
   end.setDate(end.getDate() + WINDOW_DAYS); // exclusivo
   return { start, end };

@@ -2189,7 +2189,7 @@ a {
 }
 
 .kiosk-calendar__day-label {
-  font-size: 18px;
+  font-size: 28px;
   font-weight: 800;
   color: var(--accent);
   text-transform: uppercase;
@@ -2210,7 +2210,7 @@ a {
 .kiosk-calendar__time {
   flex-shrink: 0;
   font-weight: 700;
-  font-size: 19px;
+  font-size: 29px;
   min-width: 84px;
 }
 
@@ -2222,12 +2222,12 @@ a {
 }
 
 .kiosk-calendar__title {
-  font-size: 21px;
+  font-size: 31px;
   font-weight: 600;
 }
 
 .kiosk-calendar__location {
-  font-size: 18px;
+  font-size: 28px;
   color: var(--muted);
 }
 
