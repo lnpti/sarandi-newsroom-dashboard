@@ -22,7 +22,7 @@ export default function HolidaysPanel({ holidays }) {
 
   return (
     <div className="side-panel">
-      <div className="side-panel__header">📅 Próximo feriado</div>
+      <div className="side-panel__header">📅 Próximos feriados</div>
       {list.map((h, i) => (
         <div className={`holiday-row ${i === 0 ? 'holiday-row--next' : ''}`} key={h.date}>
           <div className="holiday-row__main">

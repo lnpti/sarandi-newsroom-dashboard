@@ -5,6 +5,7 @@ import HeadlineCarousel from './HeadlineCarousel.jsx';
 import PortalBadge from './PortalBadge.jsx';
 import PortalFilterChips from './PortalFilterChips.jsx';
 import { FEED_SOURCES } from '../feedSourcesMeta.js';
+import { dedupeSimilarTitles } from '../newsDedup.js';
 
 const CAROUSEL_SIZE = 6;
 
@@ -26,7 +27,10 @@ export default function ExternalNewsColumn({ externalNews }) {
       if (!active.has(key)) continue;
       for (const item of externalNews[key].data || []) items.push(item);
     }
-    return items.sort((a, b) => new Date(b.isoDate || 0) - new Date(a.isoDate || 0));
+    items.sort((a, b) => new Date(b.isoDate || 0) - new Date(a.isoDate || 0));
+    // Vários portais publicam a mesma notícia de agência com título reescrito
+    // — sem isso a coluna mostrava a mesma manchete várias vezes seguidas.
+    return dedupeSimilarTitles(items);
   }, [externalNews, active]);
 
   const pool = useMemo(() => merged.filter((item) => item.image).slice(0, CAROUSEL_SIZE), [merged]);

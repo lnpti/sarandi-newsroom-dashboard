@@ -22,6 +22,7 @@ import { fetchHolidays } from './services/holidaysService.js';
 import { fetchLottery } from './services/lotteryService.js';
 import { fetchSaint } from './services/saintService.js';
 import { fetchCalendar } from './services/calendarService.js';
+import { fetchYoutubeVideos } from './services/youtubeService.js';
 import { notifyNewRadioNews } from './notifier.js';
 import { setupAutoUpdater, consumeFullscreenFlag } from './updater.js';
 import { loadWindowState, getInitialBounds, attachWindowState } from './windowState.js';
@@ -32,6 +33,14 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url));
 // app.getPath('userData'), pra cada emissora ter sua própria pasta de
 // settings/cache quando testadas na mesma máquina.
 app.setName(stationConfig.RADIO_NAME);
+
+// Sem isso, o Windows mostra "electron.app.Electron" nas notificações em vez
+// do nome do app — precisa ser o mesmo appId usado no electron-builder.config.js.
+const APP_USER_MODEL_IDS = {
+  sarandi: 'com.radiosarandi.newsroom-dashboard',
+  cacique: 'com.tuaradiocacique.newsroom-dashboard',
+};
+app.setAppUserModelId(APP_USER_MODEL_IDS[stationConfig.STATION_SLUG] || APP_USER_MODEL_IDS.sarandi);
 
 // Mesmo ícone do PlayNews em qualquer emissora.
 const ICON_PATH = join(__dirname, '../../build/icon.ico');
@@ -63,6 +72,23 @@ function createWindow() {
   });
 
   attachWindowState(win);
+
+  // Links de notícia/vídeo (target="_blank") abrem numa janela Electron nova
+  // (não no navegador do sistema) — sem overrideBrowserWindowOptions aqui,
+  // essa janela nasce sem ícone configurado e mostra o ícone genérico do
+  // Electron em vez do ícone do app.
+  win.webContents.setWindowOpenHandler(() => ({
+    action: 'allow',
+    overrideBrowserWindowOptions: {
+      icon: ICON_PATH,
+      autoHideMenuBar: true,
+      webPreferences: {
+        contextIsolation: true,
+        nodeIntegration: false,
+        sandbox: true,
+      },
+    },
+  }));
 
   // Tratado no processo main (before-input-event) em vez de um listener no
   // renderer — funciona independente de qual elemento está com foco na página.
@@ -128,7 +154,9 @@ function startPollers(store, settings, getSettings) {
   pollers.weather = createPoller({
     key: 'weather',
     intervalMs: settings.weather,
-    fetchFn: fetchWeather,
+    // Lê lat/lon/cidades extras na hora do fetch (não na criação do poller),
+    // pra refletir mudanças feitas na tela de Configurações sem reiniciar o app.
+    fetchFn: () => fetchWeather(getSettings()),
     onResult: (key, patch) => store.update(key, patch),
   });
   pollers.weather.start();
@@ -136,7 +164,7 @@ function startPollers(store, settings, getSettings) {
   pollers.weatherAlerts = createPoller({
     key: 'weatherAlerts',
     intervalMs: settings.weatherAlerts,
-    fetchFn: fetchWeatherAlerts,
+    fetchFn: () => fetchWeatherAlerts(getSettings().weatherAlertCityMatch),
     onResult: (key, patch) => store.update(key, patch),
   });
   pollers.weatherAlerts.start();
@@ -191,6 +219,16 @@ function startPollers(store, settings, getSettings) {
   });
   pollers.calendar.start();
 
+  pollers.youtube = createPoller({
+    key: 'youtube',
+    intervalMs: settings.youtube,
+    // Lê a URL na hora do fetch (não na criação do poller), pra refletir
+    // mudanças feitas na tela de Configurações sem reiniciar o app.
+    fetchFn: () => fetchYoutubeVideos(getSettings().youtubeUrl),
+    onResult: (key, patch) => store.update(key, patch),
+  });
+  pollers.youtube.start();
+
   FEED_SOURCES.forEach((source, index) => {
     const storeKey = `externalNews:${source.key}`;
     const poller = createPoller({
@@ -241,6 +279,11 @@ app.whenReady().then(() => {
       // Feeds/URL mudaram: busca de novo já, sem esperar o próximo ciclo do poller.
       if ('regionalRssUrls' in partial) pollers.regionalNews?.refreshNow();
       if ('calendarIcsUrl' in partial) pollers.calendar?.refreshNow();
+      if ('youtubeUrl' in partial) pollers.youtube?.refreshNow();
+      if (['weatherLat', 'weatherLon', 'weatherCityLabel', 'weatherExtraCities'].some((k) => k in partial)) {
+        pollers.weather?.refreshNow();
+      }
+      if ('weatherAlertCityMatch' in partial) pollers.weatherAlerts?.refreshNow();
       return settings;
     },
   });

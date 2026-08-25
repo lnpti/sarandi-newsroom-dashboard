@@ -8,7 +8,7 @@ export default function WeatherWidget({ weather }) {
     <div className="weather">
       <span className="weather__icon">{iconForCode(data.code)}</span>
       <span className="weather__temp">{data.temp}°C</span>
-      <span className="weather__label">{CITY_LABEL}</span>
+      <span className="weather__label">{data.cityLabel || CITY_LABEL}</span>
     </div>
   );
 }

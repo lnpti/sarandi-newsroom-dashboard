@@ -1,5 +1,10 @@
 import { Notification, shell } from 'electron';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { stationConfig } from './stations/index.js';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const ICON_PATH = join(__dirname, '../../build/icon.ico');
 
 // Notifica só o que é genuinamente novo desde a última busca. Se `previousItems`
 // for null (primeiro carregamento, sem cache de sessão anterior), não notifica
@@ -14,6 +19,7 @@ export function notifyNewRadioNews(previousItems, newItems) {
     const notification = new Notification({
       title: `Nova notícia — ${stationConfig.RADIO_NAME}`,
       body: item.titulo,
+      icon: ICON_PATH,
     });
     notification.on('click', () => shell.openExternal(item.url));
     notification.show();

@@ -3,7 +3,6 @@ import ListenerGauge from './ListenerGauge.jsx';
 import ListenerSparkline from './ListenerSparkline.jsx';
 import StatusBadge from './StatusBadge.jsx';
 import StreamStatus from './StreamStatus.jsx';
-import RelativeTime from './RelativeTime.jsx';
 import Clock from './Clock.jsx';
 import WeatherWidget from './WeatherWidget.jsx';
 import CurrencyWidget from './CurrencyWidget.jsx';
@@ -14,7 +13,7 @@ import logoLight from '@station-assets/logo-light.png';
 import { RADIO_NAME } from '@station-assets/info.js';
 import appIcon from '../assets/app-icon.png';
 
-export default function TopBar({ listeners, listenerHistory, weather, currency }) {
+export default function TopBar({ listeners, listenerHistory, weather, currency, kiosk, onUpdateKiosk }) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [version, setVersion] = useState('');
 
@@ -30,15 +29,19 @@ export default function TopBar({ listeners, listenerHistory, weather, currency }
       <ListenerGauge listeners={listeners} history={listenerHistory} />
       <ListenerSparkline history={listenerHistory} />
       <WeatherWidget weather={weather} />
-      <CurrencyWidget currency={currency} />
+      {!kiosk?.kioskModeOn && <CurrencyWidget currency={currency} />}
       <div className="top-bar__spacer" />
       <Clock />
       <div className="top-bar__meta">
         <StatusBadge status={listeners.status} />
-        <span>
-          atualizado <RelativeTime timestamp={listeners.lastUpdated} />
-        </span>
         <FontSizeControl />
+        <button
+          className={`icon-btn ${kiosk?.kioskModeOn ? 'icon-btn--active' : ''}`}
+          title="Modo TV"
+          onClick={() => onUpdateKiosk({ kioskModeOn: !kiosk?.kioskModeOn })}
+        >
+          📺
+        </button>
         <button className="icon-btn" title="Configurações" onClick={() => setSettingsOpen(true)}>
           ⚙
         </button>
@@ -56,7 +59,9 @@ export default function TopBar({ listeners, listenerHistory, weather, currency }
           </span>
         )}
       </div>
-      {settingsOpen && <SettingsPanel onClose={() => setSettingsOpen(false)} />}
+      {settingsOpen && (
+        <SettingsPanel kiosk={kiosk} onUpdateKiosk={onUpdateKiosk} onClose={() => setSettingsOpen(false)} />
+      )}
     </div>
   );
 }

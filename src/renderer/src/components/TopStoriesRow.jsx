@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import KeywordBadge from './KeywordBadge.jsx';
 
-const PAGE_SIZE = 3;
 const INTERVAL_MS = 7000;
 
-// items: [{ id, image, title, link, badge: ReactNode }] — pagina em grupos de 3
-// e vai trocando o grupo visível sozinho, como um fluxo contínuo.
-export default function TopStoriesRow({ items }) {
-  const pageCount = Math.ceil(items.length / PAGE_SIZE);
+// items: [{ id, image, title, link, badge: ReactNode }] — pagina em grupos de
+// `pageSize` e vai trocando o grupo visível sozinho, como um fluxo contínuo
+// (a menos que autoRotate={false}, aí fica fixo no 1º grupo).
+export default function TopStoriesRow({ items, pageSize = 3, autoRotate = true }) {
+  const pageCount = Math.ceil(items.length / pageSize);
   const [page, setPage] = useState(0);
 
   useEffect(() => {
@@ -15,14 +15,14 @@ export default function TopStoriesRow({ items }) {
   }, [pageCount, page]);
 
   useEffect(() => {
-    if (pageCount < 2) return;
+    if (!autoRotate || pageCount < 2) return;
     const id = setInterval(() => setPage((p) => (p + 1) % pageCount), INTERVAL_MS);
     return () => clearInterval(id);
-  }, [pageCount]);
+  }, [pageCount, autoRotate]);
 
   if (items.length === 0) return null;
 
-  const visible = items.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
+  const visible = items.slice(page * pageSize, page * pageSize + pageSize);
 
   return (
     <div className="top-stories-row" key={page}>

@@ -6,6 +6,10 @@ export const INMET_ALERTS_URL = 'https://apiprevmet3.inmet.gov.br/avisos/ativos'
 // AwesomeAPI — cotações de moedas, gratuita e sem chave
 export const CURRENCY_URL = 'https://economia.awesomeapi.com.br/json/last/USD-BRL,EUR-BRL';
 
+// HG Brasil Finance — bitcoin e principais índices de bolsa (Ibovespa, Dow
+// Jones, Nasdaq), sem chave (modo demo, dado levemente atrasado)
+export const MARKET_URL = 'https://api.hgbrasil.com/finance?format=json-cors';
+
 // API pública da ESPN (sem chave). fixture=true traz só jogos futuros.
 // Slug "all" cobre TODAS as competições (Brasileirão, Copa do Brasil,
 // Libertadores/Sul-Americana) — bra.1 sozinho escondia jogos de outras
@@ -46,4 +50,5 @@ export const DEFAULT_POLL_INTERVALS_MS = {
   lottery: 60 * 60 * 1000,
   saint: 12 * 60 * 60 * 1000,
   calendar: 15 * 60 * 1000,
+  youtube: 30 * 60 * 1000,
 };

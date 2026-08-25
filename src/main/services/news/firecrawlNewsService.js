@@ -14,11 +14,15 @@ const LINK_RE =
 const HREF_RE =
   /href="(https:\/\/www\.tuaradio\.com\.br\/[^"]+\/noticias\/[a-z0-9-]+\/\d{2}-\d{2}-\d{4}\/[a-z0-9-]+)"/g;
 
-// As miniaturas do site são carregadas via lazy-load (div com data-src, não
-// <img src>), então não aparecem na conversão pra markdown — só no HTML.
-// Cada notícia tem sua imagem logo depois do próprio link, antes do próximo
-// link de notícia; por isso a busca é limitada à janela entre um href e o
-// próximo (ou 1500 chars), pra não pegar a imagem errada.
+// As miniaturas do site são carregadas via lazy-load, então não aparecem na
+// conversão pra markdown — só no HTML. O site já usou dois formatos pra isso
+// (por isso os dois padrões abaixo): um `data-src="URL"` antes do carregamento
+// preguiçoso resolver, ou um `background-image: url(URL)` inline depois que
+// resolve. Cada notícia tem sua imagem logo depois do próprio link, antes do
+// próximo link de notícia; por isso a busca é limitada à janela entre um href
+// e o próximo (ou 2000 chars), pra não pegar a imagem errada.
+const IMG_PATTERNS = [/data-src="([^"]+)"/, /background-image:\s*url\(([^)]+)\)/];
+
 function extractImages(html) {
   const hrefMatches = [...html.matchAll(HREF_RE)];
   const imgByUrl = new Map();
@@ -29,10 +33,17 @@ function extractImages(html) {
 
     const start = hrefMatches[i].index + hrefMatches[i][0].length;
     const end = hrefMatches[i + 1] ? hrefMatches[i + 1].index : html.length;
-    const segment = html.slice(start, Math.min(end, start + 1500));
+    const segment = html.slice(start, Math.min(end, start + 2000));
 
-    const imgMatch = segment.match(/data-src="([^"]+)"/);
-    imgByUrl.set(url, imgMatch ? imgMatch[1].replace(/&amp;/g, '&') : null);
+    let img = null;
+    for (const pattern of IMG_PATTERNS) {
+      const match = segment.match(pattern);
+      if (match) {
+        img = match[1].replace(/&amp;/g, '&');
+        break;
+      }
+    }
+    imgByUrl.set(url, img);
   }
 
   return imgByUrl;

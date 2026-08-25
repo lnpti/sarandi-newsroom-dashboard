@@ -14,6 +14,7 @@ contextBridge.exposeInMainWorld('dashboard', {
   getVersion: () => ipcRenderer.invoke('app:getVersion'),
   getSettings: () => ipcRenderer.invoke('settings:get'),
   updateSettings: (partial) => ipcRenderer.invoke('settings:update', partial),
+  searchCity: (query) => ipcRenderer.invoke('weather:searchCity', query),
   onUpdaterStatus: (callback) => {
     const listener = (_event, payload) => callback(payload);
     ipcRenderer.on('updater:status', listener);

@@ -22,6 +22,7 @@ function initialSnapshot() {
     lottery: emptySourceNode(),
     saint: emptySourceNode(),
     calendar: emptySourceNode(),
+    youtube: emptySourceNode(),
     externalNews: Object.fromEntries(EXTERNAL_KEYS.map((k) => [k, emptySourceNode()])),
   };
   if (!cached) return base;
@@ -38,6 +39,7 @@ function initialSnapshot() {
     lottery: { ...base.lottery, ...cached.lottery },
     saint: { ...base.saint, ...cached.saint },
     calendar: { ...base.calendar, ...cached.calendar },
+    youtube: { ...base.youtube, ...cached.youtube },
     externalNews: Object.fromEntries(
       EXTERNAL_KEYS.map((k) => [k, { ...base.externalNews[k], ...cached.externalNews?.[k] }])
     ),

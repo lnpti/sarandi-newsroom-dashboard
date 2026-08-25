@@ -1,17 +1,38 @@
 # publicar.ps1 — commita, versiona e publica o dashboard (Sarandi ou Cacique)
 # Uso: .\publicar.ps1 [versão] [-Estacao sarandi|cacique]
 # Exemplos:
-#   .\publicar.ps1                        → Sarandi, incrementa o patch (1.0.5 → 1.0.6)
-#   .\publicar.ps1 1.1.0                  → Sarandi, versão explícita
-#   .\publicar.ps1 -Estacao cacique       → Cacique, incrementa o patch
+#   .\publicar.ps1                        → pergunta a emissora, incrementa o patch (1.0.5 → 1.0.6)
+#   .\publicar.ps1 1.1.0                  → pergunta a emissora, versão explícita
+#   .\publicar.ps1 -Estacao cacique       → Cacique direto, sem perguntar, incrementa o patch
 
 param(
     [string]$Versao = "",
-    [ValidateSet("sarandi", "cacique")]
-    [string]$Estacao = "sarandi"
+    [ValidateSet("", "sarandi", "cacique")]
+    [string]$Estacao = ""
 )
 
 Set-Location $PSScriptRoot
+
+# Se não veio pelo parâmetro, pergunta interativamente.
+if ($Estacao -eq "") {
+    Write-Host ""
+    Write-Host "Qual emissora publicar?"
+    Write-Host "  1) Sarandi"
+    Write-Host "  2) Cacique"
+    $escolha = Read-Host "Escolha (1/2)"
+    switch ($escolha.Trim()) {
+        "1" { $Estacao = "sarandi" }
+        "2" { $Estacao = "cacique" }
+        "sarandi" { $Estacao = "sarandi" }
+        "cacique" { $Estacao = "cacique" }
+        default {
+            Write-Host "Opção inválida." -ForegroundColor Red
+            Read-Host "Pressione Enter para fechar"
+            exit 1
+        }
+    }
+}
+
 $env:STATION = $Estacao
 
 # Lê a versão atual do package.json

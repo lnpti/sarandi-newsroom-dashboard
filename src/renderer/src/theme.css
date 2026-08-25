@@ -690,7 +690,7 @@ a {
   border: 1px solid var(--card-border);
   border-radius: 12px;
   padding: 20px;
-  width: 360px;
+  width: 600px;
   max-height: 82vh;
   display: flex;
   flex-direction: column;
@@ -719,23 +719,32 @@ a {
   color: var(--text);
 }
 
+.settings-panel__main {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  gap: 16px;
+}
+
 .settings-tabs {
   display: flex;
+  flex-direction: column;
   gap: 4px;
-  padding: 3px;
+  padding: 6px;
+  width: 160px;
+  flex-shrink: 0;
   background: var(--bg-elevated);
   border: 1px solid var(--card-border);
   border-radius: 8px;
-  margin-bottom: 14px;
-  flex-shrink: 0;
+  overflow-y: auto;
 }
 
 .settings-tab {
-  flex: 1;
+  text-align: left;
   background: transparent;
   border: none;
   border-radius: 6px;
-  padding: 7px 6px;
+  padding: 9px 12px;
   font-size: 12px;
   font-weight: 600;
   color: var(--muted);
@@ -753,6 +762,8 @@ a {
 }
 
 .settings-panel__body {
+  flex: 1;
+  min-width: 0;
   overflow-y: auto;
 }
 
@@ -914,6 +925,35 @@ a {
 .settings-rss__add button:disabled {
   opacity: 0.5;
   cursor: default;
+}
+
+.city-search {
+  margin-top: 4px;
+}
+
+.city-search__results {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.city-search__result {
+  text-align: left;
+  background: var(--bg-elevated);
+  color: var(--text);
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.city-search__result:hover {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .theme-picker {
@@ -1363,4 +1403,895 @@ a {
   border-radius: 6px;
   color: #0b0d11;
   flex-shrink: 0;
+}
+
+/* ============================================================
+   Modo TV (rodízio de telas cheias) — botão + aba de config
+   ============================================================ */
+
+.icon-btn--active {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.settings-tv__toggle {
+  background: var(--bg-elevated);
+  border: 1px solid var(--card-border);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.settings-tv__toggle--on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.settings-tv__slide {
+  cursor: pointer;
+}
+
+.settings-tv__slide input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* ============================================================
+   Modo TV — telas em si
+   ============================================================ */
+
+.kiosk-view {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  padding: 32px 40px;
+}
+
+.kiosk-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--card-border);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--text);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.35;
+  transition: opacity 0.15s, background 0.15s;
+  z-index: 2;
+}
+
+.kiosk-nav:hover {
+  opacity: 1;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.kiosk-nav--prev {
+  left: 12px;
+}
+
+.kiosk-nav--next {
+  right: 12px;
+}
+
+.kiosk-view--empty {
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 18px;
+  text-align: center;
+}
+
+.kiosk-slide {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  animation: kiosk-fade 0.4s ease;
+}
+
+@keyframes kiosk-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.kiosk-slide__header {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+
+.kiosk-slide__body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.kiosk-slide__empty {
+  color: var(--muted);
+  font-size: 18px;
+}
+
+/* Notícias (portal da rádio / nacionais) — reaproveita top-story/featured-row
+   já usados no modo normal, só que bem maiores. */
+.kiosk-slide--news .featured-row {
+  height: 56vh;
+  margin-bottom: 24px;
+}
+
+.kiosk-slide--news .top-story__title {
+  font-size: 22px !important;
+  -webkit-line-clamp: 3;
+}
+
+.kiosk-slide--news .top-story--featured .top-story__title {
+  font-size: 46px !important;
+}
+
+.kiosk-slide--news .news-card__category,
+.kiosk-slide--news .portal-badge {
+  font-size: 14px;
+  padding: 5px 14px;
+}
+
+/* Regionais */
+.kiosk-regional-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  height: 100%;
+  overflow: hidden;
+}
+
+.kiosk-slide--regional .regional-card {
+  padding: 14px 16px;
+}
+
+.kiosk-slide--regional .regional-card__img {
+  width: 90px;
+  height: 90px;
+}
+
+.kiosk-slide--regional .regional-card__title {
+  font-size: 18px !important;
+}
+
+.kiosk-slide--regional .regional-card__meta {
+  font-size: 14px !important;
+}
+
+/* Clima */
+.kiosk-weather {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+  height: 100%;
+}
+
+.kiosk-weather__now {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.kiosk-weather__now-icon {
+  font-size: 100px;
+}
+
+.kiosk-weather__now-temp {
+  font-size: 90px;
+  font-weight: 800;
+}
+
+.kiosk-weather__extra {
+  display: flex;
+  gap: 40px;
+}
+
+.kiosk-weather__extra-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.kiosk-weather__extra-icon {
+  font-size: 32px;
+}
+
+.kiosk-weather__extra-value {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.kiosk-weather__extra-label {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* Próximas horas (passos de 2h) — mais compacto que os cards de 5 dias, já
+   que tem mais pontos (6) numa faixa só. */
+.kiosk-weather__hourly {
+  display: flex;
+  gap: 16px;
+}
+
+.kiosk-weather__hour {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  min-width: 80px;
+}
+
+.kiosk-weather__hour-time {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.kiosk-weather__hour-icon {
+  font-size: 28px;
+}
+
+.kiosk-weather__hour-temp {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.kiosk-weather__hour-rain {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.kiosk-weather__forecast {
+  display: flex;
+  gap: 24px;
+}
+
+.kiosk-weather__day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 20px 24px;
+  min-width: 110px;
+}
+
+.kiosk-weather__day-label {
+  font-size: 16px;
+  color: var(--muted);
+  text-transform: capitalize;
+}
+
+.kiosk-weather__day-icon {
+  font-size: 40px;
+}
+
+.kiosk-weather__day-max {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.kiosk-weather__day-min {
+  font-size: 16px;
+  color: var(--muted);
+}
+
+/* Temperatura de outras cidades (ex.: onde a rádio tem retransmissão) — chips
+   empilhados na vertical, fora do fluxo centralizado do resto do slide. */
+.kiosk-weather__cities {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.kiosk-weather__city {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 999px;
+  padding: 8px 16px;
+}
+
+.kiosk-weather__city-icon {
+  font-size: 18px;
+}
+
+.kiosk-weather__city-temp {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.kiosk-weather__city-label {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* Esporte */
+/* 3 colunas lado a lado (Grenal / Classificação / Rodada) em vez de empilhar
+   tudo — é uma TV sem ninguém pra rolar a tela, então precisa caber inteiro. */
+.kiosk-sports-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  height: 100%;
+  min-height: 0;
+}
+
+.kiosk-sports {
+  display: grid;
+  /* Últimos resultados/Próximos jogos e Classificação ganham mais espaço —
+     a Rodada usa linhas compactas e cabe bem numa coluna mais estreita. */
+  grid-template-columns: 4fr 4fr 3fr;
+  gap: 28px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+/* Preenche o espaço que sobra entre a grade de 3 colunas (que não estica pra
+   ocupar a altura toda) e a linha de notícias — sem isso ficava uma faixa
+   vazia no meio do slide. */
+.kiosk-sports__news {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.kiosk-sports__news .top-stories-row {
+  margin-bottom: 0;
+}
+
+.kiosk-sports__news .top-story {
+  height: 190px;
+}
+
+.kiosk-sports__news .top-story__title {
+  font-size: calc(15px * var(--news-font-scale));
+  -webkit-line-clamp: 3;
+}
+
+.kiosk-sports__col {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.kiosk-sports__group {
+  min-width: 0;
+}
+
+.kiosk-sports__group-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin: 0 0 8px;
+}
+
+.kiosk-game-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px 26px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  font-size: 22px;
+}
+
+.kiosk-game-row__side {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.kiosk-game-row__logo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.kiosk-game-row__abbr {
+  font-weight: 700;
+}
+
+.kiosk-game-row__score {
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.kiosk-game-row__x {
+  color: var(--muted);
+}
+
+.kiosk-game-row__when {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  color: var(--muted);
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+.kiosk-game-row__league {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.kiosk-game-row + .kiosk-game-row {
+  margin-top: 14px;
+}
+
+.kiosk-game-row--compact {
+  padding: 8px 14px;
+  font-size: 15px;
+  gap: 10px;
+}
+
+.kiosk-game-row--compact + .kiosk-game-row--compact {
+  margin-top: 6px;
+}
+
+.kiosk-game-row--compact .kiosk-game-row__logo {
+  width: 24px;
+  height: 24px;
+}
+
+.kiosk-game-row--compact .kiosk-game-row__score {
+  font-size: 16px;
+}
+
+.kiosk-game-row--compact .kiosk-game-row__when {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* Classificação (dentro da tela de Esporte) */
+.kiosk-standings {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.kiosk-standings-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.kiosk-standings-row--tracked {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.kiosk-standings-row__rank {
+  width: 28px;
+  flex-shrink: 0;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.kiosk-standings-row--tracked .kiosk-standings-row__rank {
+  color: var(--accent);
+}
+
+.kiosk-standings-row__logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.kiosk-standings-row__team {
+  font-weight: 700;
+  width: 54px;
+  flex-shrink: 0;
+}
+
+.kiosk-standings-row__stats {
+  color: var(--muted);
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 13px;
+}
+
+.kiosk-standings-row__points {
+  font-weight: 800;
+}
+
+.kiosk-standings__divider {
+  text-align: center;
+  color: var(--muted);
+  letter-spacing: 4px;
+}
+
+/* Loterias */
+.kiosk-lottery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  overflow-y: auto;
+}
+
+.kiosk-lottery-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.kiosk-lottery-card__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 14px;
+}
+
+.kiosk-lottery-card__label {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.kiosk-lottery-card__concurso {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.kiosk-lottery-card__dezenas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.kiosk-lottery-card .lottery-ball {
+  width: 38px;
+  height: 38px;
+  font-size: 15px;
+}
+
+.kiosk-lottery-card__foot {
+  font-size: 15px;
+  color: var(--muted);
+}
+
+/* Feriados */
+.kiosk-holidays {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+}
+
+.kiosk-holiday-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+}
+
+.kiosk-holiday-row--next {
+  border-color: var(--accent);
+}
+
+.kiosk-holiday-row--next .kiosk-holiday-row__name {
+  color: var(--accent);
+}
+
+.kiosk-holiday-row__main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kiosk-holiday-row__name {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.kiosk-holiday-row__date {
+  font-size: 16px;
+  color: var(--muted);
+  text-transform: capitalize;
+}
+
+.kiosk-holiday-row__until {
+  font-size: 18px;
+  color: var(--muted);
+}
+
+/* Santo do dia */
+.kiosk-saint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 16px;
+  text-align: center;
+}
+
+.kiosk-saint__name {
+  font-size: 48px;
+  font-weight: 800;
+}
+
+.kiosk-saint__cor {
+  font-size: 20px;
+  color: var(--muted);
+}
+
+/* Cotações */
+.kiosk-market {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  gap: 56px;
+}
+
+.kiosk-market__group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.kiosk-currency {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 80px;
+}
+
+.kiosk-currency__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.kiosk-currency__label {
+  font-size: 22px;
+  color: var(--muted);
+}
+
+.kiosk-currency__value {
+  font-size: 56px;
+  font-weight: 800;
+}
+
+.kiosk-currency__change {
+  font-size: 20px;
+}
+
+/* Loterias + Feriados + Santo do dia combinados numa tela só */
+.kiosk-daily {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  overflow: hidden;
+}
+
+.kiosk-daily__saint {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 16px 20px;
+  background: var(--card);
+  border: 1px solid var(--accent);
+  border-radius: 14px;
+  font-size: 20px;
+}
+
+.kiosk-daily__saint-label {
+  color: var(--muted);
+}
+
+.kiosk-daily__saint-name {
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.kiosk-daily__saint-cor {
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.kiosk-daily__columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  flex: 1;
+  min-height: 0;
+}
+
+.kiosk-daily__col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+/* Flashs agendados */
+.kiosk-calendar {
+  column-count: 2;
+  column-gap: 40px;
+  height: 100%;
+  overflow: hidden;
+}
+
+.kiosk-calendar__empty {
+  font-size: 22px;
+  color: var(--muted);
+}
+
+.kiosk-calendar__day {
+  break-inside: avoid;
+  margin-bottom: 24px;
+}
+
+.kiosk-calendar__day-label {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 10px;
+}
+
+.kiosk-calendar__row {
+  display: flex;
+  gap: 16px;
+  padding: 12px 16px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+
+.kiosk-calendar__time {
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 18px;
+  min-width: 84px;
+}
+
+.kiosk-calendar__main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.kiosk-calendar__title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.kiosk-calendar__location {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* Vídeos do YouTube — grade de cards com miniatura 16:9, em vez do formato de
+   card de notícia (overlay de texto por cima da imagem não combina com
+   thumbnail de vídeo, que já costuma ter texto/rostos na própria imagem). */
+.kiosk-video-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 1fr;
+  gap: 26px;
+  height: 100%;
+}
+
+.kiosk-video-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.22);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.kiosk-video-card__thumb {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--card-border);
+  flex-shrink: 0;
+}
+
+.kiosk-video-card__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.kiosk-video-card__play {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(224, 30, 30, 0.9);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  padding-left: 3px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+}
+
+.kiosk-video-card__title {
+  margin: 14px 16px 4px;
+  font-size: calc(16px * var(--news-font-scale));
+  font-weight: 700;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.kiosk-video-card__date {
+  margin: auto 16px 14px;
+  font-size: 13px;
+  color: var(--muted);
 }

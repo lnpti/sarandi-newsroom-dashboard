@@ -11,6 +11,7 @@ export const SETTINGS_LABELS = {
   lottery: 'Loterias',
   saint: 'Santo do dia',
   calendar: 'Agenda (Outlook)',
+  youtube: 'Vídeos do YouTube',
 };
 
 export const INTERVAL_OPTIONS = {
@@ -88,5 +89,11 @@ export const INTERVAL_OPTIONS = {
     { label: '15 minutos', ms: 15 * 60 * 1000 },
     { label: '30 minutos', ms: 30 * 60 * 1000 },
     { label: '60 minutos', ms: 60 * 60 * 1000 },
+  ],
+  youtube: [
+    { label: '15 minutos', ms: 15 * 60 * 1000 },
+    { label: '30 minutos', ms: 30 * 60 * 1000 },
+    { label: '60 minutos', ms: 60 * 60 * 1000 },
+    { label: '3 horas', ms: 3 * 60 * 60 * 1000 },
   ],
 };

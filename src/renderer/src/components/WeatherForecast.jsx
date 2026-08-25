@@ -7,7 +7,7 @@ export default function WeatherForecast({ weather }) {
 
   return (
     <div className="forecast-panel">
-      <div className="forecast-panel__header">🌤️ Previsão · {CITY_LABEL}</div>
+      <div className="forecast-panel__header">🌤️ Previsão · {weather?.data?.cityLabel || CITY_LABEL}</div>
       {daily.map((d, i) => (
         <div className="forecast-row" key={d.date}>
           <span className="forecast-row__day">{weekdayLabel(d.date, i)}</span>

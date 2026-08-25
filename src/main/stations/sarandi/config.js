@@ -18,6 +18,7 @@ export const NEWS = {
 };
 
 // Sarandi - RS (cidade da rádio)
+export const CITY_LABEL = 'Sarandi';
 export const WEATHER_LAT = -27.94389;
 export const WEATHER_LON = -52.92278;
 export const WEATHER_ALERT_CITY_MATCH = 'Sarandi - RS';

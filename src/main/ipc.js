@@ -1,5 +1,6 @@
 import { ipcMain, app } from 'electron';
 import { checkForUpdate } from './updater.js';
+import { searchCity } from './services/geocodingService.js';
 
 export function registerIpc({ win, store, pollers, getSettings, updateSettings }) {
   ipcMain.handle('dashboard:getSnapshot', () => store.getSnapshot());
@@ -29,6 +30,8 @@ export function registerIpc({ win, store, pollers, getSettings, updateSettings }
   ipcMain.handle('settings:get', () => getSettings());
 
   ipcMain.handle('settings:update', (_event, partial) => updateSettings(partial));
+
+  ipcMain.handle('weather:searchCity', (_event, query) => searchCity(query));
 
   return store.subscribe((snapshot) => {
     if (!win.isDestroyed()) {

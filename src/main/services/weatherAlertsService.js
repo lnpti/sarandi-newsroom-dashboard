@@ -1,8 +1,6 @@
 import { INMET_ALERTS_URL } from '../config.js';
 import { stationConfig } from '../stations/index.js';
 
-const { WEATHER_ALERT_CITY_MATCH } = stationConfig;
-
 const SEVERITY_RANK = {
   'Grande Perigo': 3,
   Perigo: 2,
@@ -28,7 +26,8 @@ function isActiveNow(a, now) {
   return true;
 }
 
-export async function fetchWeatherAlerts() {
+export async function fetchWeatherAlerts(cityMatch) {
+  const match = cityMatch || stationConfig.WEATHER_ALERT_CITY_MATCH;
   const response = await fetch(INMET_ALERTS_URL);
   if (!response.ok) {
     throw new Error(`Falha ao buscar alertas do INMET (HTTP ${response.status})`);

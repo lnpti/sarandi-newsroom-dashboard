@@ -27,6 +27,6 @@ export async function fetchHolidays() {
   return all
     .filter((h) => h.date >= todayStr)
     .sort((a, b) => (a.date < b.date ? -1 : 1))
-    .slice(0, 1)
+    .slice(0, 2)
     .map((h) => ({ date: h.date, name: h.name }));
 }
