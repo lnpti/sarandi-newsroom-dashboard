@@ -41,6 +41,9 @@ export const FOOTBALL_TEAMS = [
 // Configurações depois que alguém criar o alerta pra região de Lagoa Vermelha.
 export const DEFAULT_REGIONAL_RSS_URLS = [];
 
+// Portal que não deve aparecer nas notícias da região desta estação.
+export const DEFAULT_REGIONAL_BLOCKED_DOMAINS = ['lagoafm.com.br'];
+
 export const DEFAULT_YOUTUBE_URL = 'https://www.youtube.com/tuaradiocacique';
 
 // Azul extraído de tuaradio.com.br — placeholder até termos a logo oficial.

@@ -61,6 +61,29 @@ function isBlockedLink(link) {
   }
 }
 
+// Portais que o usuário escolheu excluir nas Configurações — aceita tanto um
+// domínio puro ("lagoafm.com.br") quanto uma URL colada inteira, e cobre
+// subdomínios (ex.: bloquear "lagoafm.com.br" também pega "www.lagoafm.com.br").
+function isUserBlockedLink(link, blockedDomains) {
+  if (!link || !blockedDomains || blockedDomains.length === 0) return false;
+  let host;
+  try {
+    host = new URL(link).hostname.toLowerCase().replace(/^www\./, '');
+  } catch {
+    return false;
+  }
+  return blockedDomains.some((raw) => {
+    const domain = (raw || '')
+      .trim()
+      .toLowerCase()
+      .replace(/^https?:\/\//, '')
+      .replace(/^www\./, '')
+      .replace(/\/.*$/, '');
+    if (!domain) return false;
+    return host === domain || host.endsWith(`.${domain}`);
+  });
+}
+
 // O feed do Google Alertas não traz imagem nenhuma (só título/link/data) — só
 // as N primeiras notícias (as que realmente vão aparecer) valem a pena buscar
 // a imagem de capa direto na página do artigo, senão viraria uma requisição
@@ -110,7 +133,7 @@ async function attachImages(items) {
   );
 }
 
-export async function fetchRegionalNews(urls) {
+export async function fetchRegionalNews(urls, blockedDomains) {
   const feedUrls = Array.isArray(urls) && urls.length > 0 ? urls : DEFAULT_REGIONAL_RSS_URLS;
   const cutoff = Date.now() - REGIONAL_NEWS_WINDOW_DAYS * 24 * 60 * 60 * 1000;
 
@@ -133,7 +156,7 @@ export async function fetchRegionalNews(urls) {
       if (!title || seen.has(title) || isBlockedSource(source)) continue;
 
       const link = unwrapGoogleRedirect(item.link);
-      if (isBlockedLink(link)) continue;
+      if (isBlockedLink(link) || isUserBlockedLink(link, blockedDomains)) continue;
 
       const isoDate = item.isoDate || item.pubDate || null;
       // O alerta não filtra por data — descarta o que estiver fora da janela recente.

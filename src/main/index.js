@@ -146,7 +146,7 @@ function startPollers(store, settings, getSettings) {
     intervalMs: settings.regionalNews,
     // Lê a lista de feeds na hora do fetch (não na criação do poller), para
     // refletir mudanças feitas na tela de Configurações sem reiniciar o app.
-    fetchFn: () => fetchRegionalNews(getSettings().regionalRssUrls),
+    fetchFn: () => fetchRegionalNews(getSettings().regionalRssUrls, getSettings().regionalBlockedDomains),
     onResult: (key, patch) => store.update(key, patch),
   });
   pollers.regionalNews.start();
@@ -277,7 +277,7 @@ app.whenReady().then(() => {
       saveSettings(settings);
       applyIntervalSettings(pollers, partial);
       // Feeds/URL mudaram: busca de novo já, sem esperar o próximo ciclo do poller.
-      if ('regionalRssUrls' in partial) pollers.regionalNews?.refreshNow();
+      if ('regionalRssUrls' in partial || 'regionalBlockedDomains' in partial) pollers.regionalNews?.refreshNow();
       if ('calendarIcsUrl' in partial) pollers.calendar?.refreshNow();
       if ('youtubeUrl' in partial) pollers.youtube?.refreshNow();
       if (['weatherLat', 'weatherLon', 'weatherCityLabel', 'weatherExtraCities'].some((k) => k in partial)) {

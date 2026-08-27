@@ -12,6 +12,7 @@ function defaults() {
   return {
     ...DEFAULT_POLL_INTERVALS_MS,
     regionalRssUrls: stationConfig.DEFAULT_REGIONAL_RSS_URLS,
+    regionalBlockedDomains: stationConfig.DEFAULT_REGIONAL_BLOCKED_DOMAINS || [],
     calendarIcsUrl: '',
     youtubeUrl: stationConfig.DEFAULT_YOUTUBE_URL || '',
     weatherCityLabel: stationConfig.CITY_LABEL,

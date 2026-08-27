@@ -31,6 +31,7 @@ export default function SettingsPanel({ kiosk, onUpdateKiosk, onClose }) {
   const [refreshing, setRefreshing] = useState(false);
   const [updateState, setUpdateState] = useState(null);
   const [newFeedUrl, setNewFeedUrl] = useState('');
+  const [newBlockedDomain, setNewBlockedDomain] = useState('');
   const [icsUrl, setIcsUrl] = useState('');
   const [youtubeUrlInput, setYoutubeUrlInput] = useState('');
   const [extraCityNotice, setExtraCityNotice] = useState('');
@@ -66,6 +67,21 @@ export default function SettingsPanel({ kiosk, onUpdateKiosk, onClose }) {
     const updated = (settings.regionalRssUrls || []).filter((u) => u !== url);
     setSettings((prev) => ({ ...prev, regionalRssUrls: updated }));
     window.dashboard.updateSettings({ regionalRssUrls: updated });
+  }
+
+  function handleAddBlockedDomain() {
+    const domain = newBlockedDomain.trim();
+    if (!domain || settings.regionalBlockedDomains?.includes(domain)) return;
+    const updated = [...(settings.regionalBlockedDomains || []), domain];
+    setSettings((prev) => ({ ...prev, regionalBlockedDomains: updated }));
+    window.dashboard.updateSettings({ regionalBlockedDomains: updated });
+    setNewBlockedDomain('');
+  }
+
+  function handleRemoveBlockedDomain(domain) {
+    const updated = (settings.regionalBlockedDomains || []).filter((d) => d !== domain);
+    setSettings((prev) => ({ ...prev, regionalBlockedDomains: updated }));
+    window.dashboard.updateSettings({ regionalBlockedDomains: updated });
   }
 
   function handleSaveIcsUrl() {
@@ -257,6 +273,38 @@ export default function SettingsPanel({ kiosk, onUpdateKiosk, onClose }) {
                 />
                 <button onClick={handleAddFeed} disabled={!newFeedUrl.trim()}>
                   + Adicionar
+                </button>
+              </div>
+
+              <div className="settings-panel__section">Portais excluídos</div>
+              <p className="settings-rss__hint">
+                Notícias desses portais nunca aparecem na coluna/slide de notícias da região.
+              </p>
+              {(settings.regionalBlockedDomains || []).length === 0 && (
+                <p className="settings-rss__empty">Nenhum portal excluído.</p>
+              )}
+              {(settings.regionalBlockedDomains || []).map((domain) => (
+                <div key={domain} className="settings-rss__item">
+                  <span className="settings-rss__url" title={domain}>{domain}</span>
+                  <button
+                    className="settings-rss__remove"
+                    onClick={() => handleRemoveBlockedDomain(domain)}
+                    title="Remover exclusão"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+              <div className="settings-rss__add">
+                <input
+                  type="text"
+                  placeholder="Domínio do portal (ex.: lagoafm.com.br)"
+                  value={newBlockedDomain}
+                  onChange={(e) => setNewBlockedDomain(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddBlockedDomain()}
+                />
+                <button onClick={handleAddBlockedDomain} disabled={!newBlockedDomain.trim()}>
+                  + Excluir
                 </button>
               </div>
             </div>
