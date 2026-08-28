@@ -31,6 +31,7 @@ export const LOTTERY_SOURCES = [
   { key: 'megasena', label: 'Mega-Sena', primary: 'https://loteriascaixa-api.herokuapp.com/api/megasena/latest' },
   { key: 'quina', label: 'Quina', primary: 'https://loteriascaixa-api.herokuapp.com/api/quina/latest' },
   { key: 'lotofacil', label: 'Lotofácil', primary: 'https://loteriascaixa-api.herokuapp.com/api/lotofacil/latest' },
+  { key: 'federal', label: 'Federal', primary: 'https://loteriascaixa-api.herokuapp.com/api/federal/latest' },
 ];
 
 // 30s de intervalo por ~24h de histórico

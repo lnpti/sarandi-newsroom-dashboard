@@ -1,6 +1,11 @@
 function dayLabel(dateStr) {
   const today = new Date();
-  const target = new Date(dateStr);
+  // dateStr é só "YYYY-MM-DD" (data do evento, sem horário) — new Date(dateStr)
+  // interpreta isso como meia-noite UTC, que num fuso atrás de UTC (ex.: Brasil)
+  // "volta" pro dia anterior ao converter de volta pro horário local. Monta a
+  // data a partir dos componentes pra ficar sempre no fuso local.
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const target = new Date(y, m - 1, d);
   const sameDay = (a, b) =>
     a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 

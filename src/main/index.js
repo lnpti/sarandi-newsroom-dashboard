@@ -172,7 +172,7 @@ function startPollers(store, settings, getSettings) {
   pollers.currency = createPoller({
     key: 'currency',
     intervalMs: settings.currency,
-    fetchFn: fetchCurrency,
+    fetchFn: () => fetchCurrency(store.getSnapshot().currency.data),
     onResult: (key, patch) => store.update(key, patch),
   });
   pollers.currency.start();

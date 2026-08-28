@@ -35,7 +35,11 @@ async function fetchJson(url) {
   return response.json();
 }
 
-export async function fetchCurrency() {
+// A HG Brasil (bitcoin/bolsas) usa uma chave de demonstração compartilhada e
+// falha às vezes por limite de uso — sem isso, uma falha transitória zerava
+// bitcoin/bolsas na tela até a próxima consulta funcionar. `previous` é o
+// último dado bom já mostrado; usado como respaldo em vez de sumir.
+export async function fetchCurrency(previous) {
   const [awesomeRes, marketRes] = await Promise.allSettled([
     fetchJson(CURRENCY_URL),
     fetchJson(MARKET_URL),
@@ -49,11 +53,11 @@ export async function fetchCurrency() {
   const market = marketRes.status === 'fulfilled' ? marketRes.value?.results : null;
 
   return {
-    usd: mapCurrency(awesome?.USDBRL) || mapHgCurrency(market?.currencies?.USD),
-    eur: mapCurrency(awesome?.EURBRL) || mapHgCurrency(market?.currencies?.EUR),
-    btc: mapHgCurrency(market?.currencies?.BTC),
-    ibovespa: mapIndex(market?.stocks?.IBOVESPA),
-    dowjones: mapIndex(market?.stocks?.DOWJONES),
-    nasdaq: mapIndex(market?.stocks?.NASDAQ),
+    usd: mapCurrency(awesome?.USDBRL) || mapHgCurrency(market?.currencies?.USD) || previous?.usd || null,
+    eur: mapCurrency(awesome?.EURBRL) || mapHgCurrency(market?.currencies?.EUR) || previous?.eur || null,
+    btc: mapHgCurrency(market?.currencies?.BTC) || previous?.btc || null,
+    ibovespa: mapIndex(market?.stocks?.IBOVESPA) || previous?.ibovespa || null,
+    dowjones: mapIndex(market?.stocks?.DOWJONES) || previous?.dowjones || null,
+    nasdaq: mapIndex(market?.stocks?.NASDAQ) || previous?.nasdaq || null,
   };
 }

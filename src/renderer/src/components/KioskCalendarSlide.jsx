@@ -4,7 +4,11 @@ const EVENT_LIMIT = 12;
 
 function dayLabel(dateStr) {
   const today = new Date();
-  const target = new Date(dateStr);
+  // dateStr é só "YYYY-MM-DD" — new Date(dateStr) interpreta como meia-noite
+  // UTC, que num fuso atrás de UTC (ex.: Brasil) "volta" pro dia anterior ao
+  // converter de volta pro horário local. Monta a partir dos componentes.
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const target = new Date(y, m - 1, d);
   const sameDay = (a, b) =>
     a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 

@@ -30,6 +30,26 @@ function LotteryCard({ game }) {
   );
 }
 
+function FederalCard({ game }) {
+  return (
+    <div className="kiosk-lottery-card">
+      <div className="kiosk-lottery-card__head">
+        <span className="kiosk-lottery-card__label">{game.label}</span>
+        <span className="kiosk-lottery-card__concurso">#{game.concurso} · {game.data}</span>
+      </div>
+      <div className="kiosk-lottery-federal">
+        {game.tickets.map((t) => (
+          <div className="kiosk-lottery-federal__ticket" key={t.posicao}>
+            <span className="kiosk-lottery-federal__pos">{t.posicao}º</span>
+            <span className="kiosk-lottery-federal__num">{t.numero}</span>
+            <span className="kiosk-lottery-federal__premio">{formatMoney(t.premio)}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function formatHolidayDate(dateStr) {
   const [y, m, d] = dateStr.split('-').map(Number);
   const date = new Date(y, m - 1, d);
@@ -80,9 +100,9 @@ export default function KioskDailyInfoSlide({ lottery, holidays, saint }) {
           <div className="kiosk-daily__col">
             <div className="kiosk-sports__group-title">🎰 Loterias</div>
             <div className="kiosk-lottery-grid">
-              {games.map((g) => (
-                <LotteryCard key={g.key} game={g} />
-              ))}
+              {games.map((g) =>
+                g.key === 'federal' ? <FederalCard key={g.key} game={g} /> : <LotteryCard key={g.key} game={g} />
+              )}
             </div>
           </div>
         </div>

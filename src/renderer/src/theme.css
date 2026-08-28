@@ -438,6 +438,37 @@ a {
   color: var(--muted);
 }
 
+/* Federal — 5 bilhetes numerados em vez das bolinhas de dezenas */
+.lottery-federal {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.lottery-federal__ticket {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.lottery-federal__pos {
+  flex-shrink: 0;
+  width: 20px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.lottery-federal__num {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.lottery-federal__premio {
+  margin-left: auto;
+  color: var(--muted);
+}
+
 .saint-row {
   display: flex;
   flex-direction: column;
@@ -2006,6 +2037,39 @@ a {
 .kiosk-lottery-card__foot {
   font-size: 15px;
   color: var(--muted);
+}
+
+/* Federal — 5 bilhetes numerados em vez das bolinhas de dezenas */
+.kiosk-lottery-federal {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.kiosk-lottery-federal__ticket {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+}
+
+.kiosk-lottery-federal__pos {
+  flex-shrink: 0;
+  width: 30px;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.kiosk-lottery-federal__num {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.kiosk-lottery-federal__premio {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 14px;
 }
 
 /* Feriados */
