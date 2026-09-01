@@ -2145,44 +2145,106 @@ a {
 .kiosk-market {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   height: 100%;
-  gap: 56px;
+  gap: 24px;
+}
+
+.kiosk-market__top {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  flex-shrink: 0;
 }
 
 .kiosk-market__group {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 14px;
 }
 
 .kiosk-currency {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 80px;
+  gap: 44px;
 }
 
 .kiosk-currency__item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .kiosk-currency__label {
-  font-size: 22px;
+  font-size: 17px;
   color: var(--muted);
 }
 
 .kiosk-currency__value {
-  font-size: 56px;
+  font-size: 38px;
   font-weight: 800;
 }
 
 .kiosk-currency__change {
-  font-size: 20px;
+  font-size: 16px;
+}
+
+/* Maiores altas/baixas do dia (B3) */
+.kiosk-market__movers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  flex: 1;
+  min-height: 0;
+}
+
+.kiosk-market__movers-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.kiosk-mover-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+.kiosk-mover-row__main {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.kiosk-mover-row__symbol {
+  flex-shrink: 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.kiosk-mover-row__name {
+  min-width: 0;
+  font-size: 13px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kiosk-mover-row__change {
+  flex-shrink: 0;
+  font-weight: 700;
 }
 
 /* Loterias + Feriados + Santo do dia combinados numa tela só */

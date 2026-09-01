@@ -3,12 +3,28 @@ export const RSS_ITEM_LIMIT = 10;
 // API pública do INMET com avisos meteorológicos ativos (sem chave)
 export const INMET_ALERTS_URL = 'https://apiprevmet3.inmet.gov.br/avisos/ativos';
 
-// AwesomeAPI — cotações de moedas, gratuita e sem chave
-export const CURRENCY_URL = 'https://economia.awesomeapi.com.br/json/last/USD-BRL,EUR-BRL';
+// AwesomeAPI — cotações de moedas e bitcoin, gratuita e sem chave. Trocamos a
+// HG Brasil (que usava uma chave de demonstração compartilhada e vivia
+// falhando por limite de uso) pela mesma fonte já usada e confiável pro
+// dólar/euro — ela também cobre bitcoin no mesmo formato.
+export const CURRENCY_URL = 'https://economia.awesomeapi.com.br/json/last/USD-BRL,EUR-BRL,BTC-BRL';
 
-// HG Brasil Finance — bitcoin e principais índices de bolsa (Ibovespa, Dow
-// Jones, Nasdaq), sem chave (modo demo, dado levemente atrasado)
-export const MARKET_URL = 'https://api.hgbrasil.com/finance?format=json-cors';
+// Yahoo Finance (endpoint não-oficial, sem chave) — índices de bolsa
+// (Ibovespa, Dow Jones, Nasdaq). Precisa de um User-Agent de navegador, senão
+// o servidor da Yahoo devolve 429 (limite de requisições) pra toda chamada.
+export const YAHOO_FINANCE_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+};
+export const YAHOO_FINANCE_SYMBOLS = {
+  ibovespa: '%5EBVSP',
+  dowjones: '%5EDJI',
+  nasdaq: '%5EIXIC',
+};
+
+// brapi.dev — lista de ações da B3 com variação do dia, sem chave. Usada só
+// pra maiores altas/baixas do dia (não pra cotação individual de nenhuma
+// ação específica).
+export const B3_STOCK_LIST_URL = 'https://brapi.dev/api/quote/list';
 
 // API pública da ESPN (sem chave). fixture=true traz só jogos futuros.
 // Slug "all" cobre TODAS as competições (Brasileirão, Copa do Brasil,

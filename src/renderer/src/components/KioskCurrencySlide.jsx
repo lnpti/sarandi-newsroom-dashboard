@@ -32,29 +32,65 @@ function IndexRate({ label, data }) {
   );
 }
 
+function MoverRow({ item }) {
+  const up = item.change >= 0;
+  return (
+    <div className="kiosk-mover-row">
+      <span className="kiosk-mover-row__main">
+        <span className="kiosk-mover-row__symbol">{item.symbol}</span>
+        {item.name && <span className="kiosk-mover-row__name">{item.name}</span>}
+      </span>
+      <span className={`kiosk-mover-row__change ${up ? 'currency__change--up' : 'currency__change--down'}`}>
+        {up ? '▲' : '▼'} {formatNumber(Math.abs(item.change))}%
+      </span>
+    </div>
+  );
+}
+
 export default function KioskCurrencySlide({ currency }) {
   const data = currency?.data;
+  const gainers = data?.gainers || [];
+  const losers = data?.losers || [];
 
   return (
     <div className="kiosk-slide kiosk-slide--currency">
       <div className="kiosk-slide__header">💱 Mercado Financeiro</div>
       <div className="kiosk-slide__body kiosk-market">
-        <div className="kiosk-market__group">
-          <div className="kiosk-sports__group-title">Câmbio</div>
-          <div className="kiosk-currency">
-            <Rate label="Dólar" data={data?.usd} />
-            <Rate label="Euro" data={data?.eur} />
-            <Rate label="Bitcoin" data={data?.btc} />
+        <div className="kiosk-market__top">
+          <div className="kiosk-market__group">
+            <div className="kiosk-sports__group-title">Câmbio</div>
+            <div className="kiosk-currency">
+              <Rate label="Dólar" data={data?.usd} />
+              <Rate label="Euro" data={data?.eur} />
+              <Rate label="Bitcoin" data={data?.btc} />
+            </div>
+          </div>
+          <div className="kiosk-market__group">
+            <div className="kiosk-sports__group-title">Bolsas</div>
+            <div className="kiosk-currency">
+              <IndexRate label="Ibovespa" data={data?.ibovespa} />
+              <IndexRate label="Dow Jones" data={data?.dowjones} />
+              <IndexRate label="Nasdaq" data={data?.nasdaq} />
+            </div>
           </div>
         </div>
-        <div className="kiosk-market__group">
-          <div className="kiosk-sports__group-title">Bolsas</div>
-          <div className="kiosk-currency">
-            <IndexRate label="Ibovespa" data={data?.ibovespa} />
-            <IndexRate label="Dow Jones" data={data?.dowjones} />
-            <IndexRate label="Nasdaq" data={data?.nasdaq} />
+
+        {(gainers.length > 0 || losers.length > 0) && (
+          <div className="kiosk-market__movers">
+            <div className="kiosk-market__movers-col">
+              <div className="kiosk-sports__group-title">📈 Maiores altas do dia (B3)</div>
+              {gainers.map((g) => (
+                <MoverRow key={g.symbol} item={g} />
+              ))}
+            </div>
+            <div className="kiosk-market__movers-col">
+              <div className="kiosk-sports__group-title">📉 Maiores baixas do dia (B3)</div>
+              {losers.map((l) => (
+                <MoverRow key={l.symbol} item={l} />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
