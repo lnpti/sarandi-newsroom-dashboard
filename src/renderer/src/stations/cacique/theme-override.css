@@ -13,3 +13,16 @@
   --accent: #003b99;
   --accent-soft: rgba(0, 59, 153, 0.1);
 }
+
+/* Tags/etiquetas das notícias (categoria, palavra-chave em destaque) ficam
+   laranja mesmo no tema Claro, a pedido — só essas, o resto da marca
+   continua azul (botões, abas ativas, bordas etc.). Mantém o estilo de cada
+   uma (categoria = fundo suave, palavra-chave = fundo sólido), só troca a cor. */
+:root[data-theme='light'] .news-card__category {
+  background: rgba(244, 113, 30, 0.14);
+  color: #f4711e;
+}
+
+:root[data-theme='light'] .keyword-badge {
+  background: #f4711e;
+}

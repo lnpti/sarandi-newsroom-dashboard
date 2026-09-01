@@ -2152,7 +2152,7 @@ a {
 .kiosk-market__top {
   display: flex;
   justify-content: center;
-  gap: 48px;
+  gap: 70px;
   flex-shrink: 0;
 }
 
@@ -2161,6 +2161,12 @@ a {
   flex-direction: column;
   align-items: center;
   gap: 14px;
+}
+
+/* Linha divisória entre Câmbio e Bolsas, em vez de só o espaço em branco */
+.kiosk-market__group + .kiosk-market__group {
+  padding-left: 70px;
+  border-left: 1px solid var(--card-border);
 }
 
 .kiosk-currency {
@@ -2196,16 +2202,38 @@ a {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 28px;
-  flex: 1;
-  min-height: 0;
+  flex-shrink: 0;
 }
 
 .kiosk-market__movers-col {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-width: 0;
+}
+
+/* Notícias do mercado — preenche o que sobra depois das altas/baixas (que
+   agora só ocupam a altura do próprio conteúdo, não esticam mais). */
+.kiosk-market__news {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   min-height: 0;
   overflow: hidden;
+}
+
+.kiosk-market__news .top-stories-row {
+  margin-bottom: 0;
+}
+
+.kiosk-market__news .top-story {
+  height: 190px;
+}
+
+.kiosk-market__news .top-story__title {
+  font-size: calc(15px * var(--news-font-scale));
+  -webkit-line-clamp: 3;
 }
 
 .kiosk-mover-row {

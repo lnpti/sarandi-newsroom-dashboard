@@ -26,6 +26,14 @@ export const YAHOO_FINANCE_SYMBOLS = {
 // ação específica).
 export const B3_STOCK_LIST_URL = 'https://brapi.dev/api/quote/list';
 
+// InfoMoney — RSS de notícias de mercado/investimentos, sem chave. Reaproveita
+// o mesmo fetchPortal()/extração de imagem já usado pros portais nacionais.
+export const FINANCIAL_NEWS_SOURCE = {
+  key: 'infomoney',
+  label: 'InfoMoney',
+  primaryUrl: 'https://www.infomoney.com.br/feed/',
+};
+
 // API pública da ESPN (sem chave). fixture=true traz só jogos futuros.
 // Slug "all" cobre TODAS as competições (Brasileirão, Copa do Brasil,
 // Libertadores/Sul-Americana) — bra.1 sozinho escondia jogos de outras

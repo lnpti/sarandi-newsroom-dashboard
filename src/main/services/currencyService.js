@@ -1,4 +1,5 @@
-import { B3_STOCK_LIST_URL, CURRENCY_URL, YAHOO_FINANCE_HEADERS, YAHOO_FINANCE_SYMBOLS } from '../config.js';
+import { B3_STOCK_LIST_URL, CURRENCY_URL, FINANCIAL_NEWS_SOURCE, YAHOO_FINANCE_HEADERS, YAHOO_FINANCE_SYMBOLS } from '../config.js';
+import { fetchPortal } from './rssService.js';
 
 // AwesomeAPI retorna { USDBRL: {...}, EURBRL: {...}, BTCBRL: {...} } com bid
 // (compra) e pctChange (variação % no dia) como strings.
@@ -92,17 +93,25 @@ async function fetchB3Movers(sortOrder) {
     .map(mapStock);
 }
 
+const FINANCIAL_NEWS_LIMIT = 6;
+
+async function fetchFinancialNews() {
+  const items = await fetchPortal(FINANCIAL_NEWS_SOURCE);
+  return items.filter((i) => i.image).slice(0, FINANCIAL_NEWS_LIMIT);
+}
+
 // Cada fonte pode falhar isoladamente (rede, limite de uso) sem derrubar o
 // resto — `previous` é o último dado bom já mostrado, usado como respaldo em
 // vez de a cotação sumir da tela por causa de uma falha passageira.
 export async function fetchCurrency(previous) {
-  const [currencyRes, ibovespaRes, dowjonesRes, nasdaqRes, gainersRes, losersRes] = await Promise.allSettled([
+  const [currencyRes, ibovespaRes, dowjonesRes, nasdaqRes, gainersRes, losersRes, newsRes] = await Promise.allSettled([
     fetchJson(CURRENCY_URL),
     fetchYahooIndex(YAHOO_FINANCE_SYMBOLS.ibovespa),
     fetchYahooIndex(YAHOO_FINANCE_SYMBOLS.dowjones),
     fetchYahooIndex(YAHOO_FINANCE_SYMBOLS.nasdaq),
     fetchB3Movers('desc'),
     fetchB3Movers('asc'),
+    fetchFinancialNews(),
   ]);
 
   if ([currencyRes, ibovespaRes, dowjonesRes, nasdaqRes].every((r) => r.status === 'rejected')) {
@@ -121,5 +130,6 @@ export async function fetchCurrency(previous) {
     nasdaq: resultOf(nasdaqRes) || previous?.nasdaq || null,
     gainers: resultOf(gainersRes) || previous?.gainers || [],
     losers: resultOf(losersRes) || previous?.losers || [],
+    news: resultOf(newsRes) || previous?.news || [],
   };
 }

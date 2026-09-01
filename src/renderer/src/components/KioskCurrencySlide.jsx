@@ -1,7 +1,19 @@
+import TopStoriesRow from './TopStoriesRow.jsx';
+
 // pt-BR usa vírgula decimal e ponto de milhar (ex.: "R$ 430.559,34"), ao
 // contrário do toFixed()/toString() padrão do JS (ponto decimal, sem milhar).
 function formatNumber(value, decimals = 2) {
   return value.toLocaleString('pt-BR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+
+function toNewsStory(item) {
+  return {
+    id: item.id,
+    image: item.image,
+    title: item.title,
+    link: item.link,
+    badge: <span className="news-card__category">InfoMoney</span>,
+  };
 }
 
 function Rate({ label, data }) {
@@ -51,6 +63,7 @@ export default function KioskCurrencySlide({ currency }) {
   const data = currency?.data;
   const gainers = data?.gainers || [];
   const losers = data?.losers || [];
+  const news = (data?.news || []).map(toNewsStory);
 
   return (
     <div className="kiosk-slide kiosk-slide--currency">
@@ -89,6 +102,13 @@ export default function KioskCurrencySlide({ currency }) {
                 <MoverRow key={l.symbol} item={l} />
               ))}
             </div>
+          </div>
+        )}
+
+        {news.length > 0 && (
+          <div className="kiosk-market__news">
+            <div className="kiosk-sports__group-title">📰 Notícias do Mercado</div>
+            <TopStoriesRow items={news} pageSize={6} autoRotate={false} />
           </div>
         )}
       </div>
