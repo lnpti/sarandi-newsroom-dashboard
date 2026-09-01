@@ -1,6 +1,6 @@
 {
   "name": "sarandi-newsroom-dashboard",
-  "version": "1.0.34",
+  "version": "1.0.35",
   "description": "Dashboard desktop para a equipe de jornalismo da RÃ¡dio Sarandi",
   "main": "./out/main/index.js",
   "author": "RÃ¡dio Sarandi",
