@@ -347,7 +347,7 @@ export default function SettingsPanel({ kiosk, onUpdateKiosk, onClose }) {
             <div className="settings-rss">
               <p className="settings-rss__hint">
                 Link ICS do calendário do Outlook. No Outlook na Web: Configurações ⚙ → Calendário →
-                Calendários compartilhados → Publicação de calendário. Mostra os eventos dos próximos 7 dias.
+                Calendários compartilhados → Publicação de calendário. Mostra os eventos dos próximos 8 dias.
               </p>
               {!settings.calendarIcsUrl && (
                 <p className="settings-rss__empty">Nenhum calendário cadastrado.</p>

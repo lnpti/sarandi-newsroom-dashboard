@@ -1,8 +1,9 @@
 import TopStoriesRow from './TopStoriesRow.jsx';
 
-// Quantos jogos de rodada mostrar por campeonato — precisa caber na tela sem
-// rolar (é uma TV sem ninguém mexendo), então corta em vez de listar tudo.
-const ROUND_MATCHES_LIMIT = 6;
+// Total de jogos de rodada na coluna (somando os campeonatos) — precisa caber
+// na tela sem rolar (é uma TV sem ninguém mexendo), então corta em vez de
+// listar tudo. Um campeonato só mostra a rodada inteira do Brasileirão (10).
+const ROUND_ROWS_BUDGET = 10;
 
 function toSportsStory(item) {
   return {
@@ -133,16 +134,20 @@ export default function KioskSportsSlide({ football }) {
             {lastResults.length > 0 && (
               <div className="kiosk-sports__group">
                 <div className="kiosk-sports__group-title">🏆 Últimos resultados</div>
-                {lastResults.map((g) => (
-                  <ResultRow key={g.id} game={g} />
-                ))}
+                <div className="kiosk-sports__rows">
+                  {lastResults.map((g) => (
+                    <ResultRow key={g.id} game={g} />
+                  ))}
+                </div>
               </div>
             )}
             <div className="kiosk-sports__group">
               <div className="kiosk-sports__group-title">Próximos jogos</div>
-              {nextPerTeam.map((g) => (
-                <UpcomingRow key={g.id} game={g} />
-              ))}
+              <div className="kiosk-sports__rows">
+                {nextPerTeam.map((g) => (
+                  <UpcomingRow key={g.id} game={g} />
+                ))}
+              </div>
             </div>
           </div>
 
@@ -166,26 +171,38 @@ export default function KioskSportsSlide({ football }) {
             })}
           </div>
 
-          <div className="kiosk-sports__col">
-            {rounds.map((league) => (
-              <div className="kiosk-sports__group" key={`round-${league.slug}`}>
-                <div className="kiosk-sports__group-title">🗓️ Rodada — {league.name}</div>
-                {league.matches.slice(0, ROUND_MATCHES_LIMIT).map((g) => (
-                  <div className="kiosk-game-row kiosk-game-row--compact" key={g.id}>
-                    <TeamSide abbr={g.homeAbbr} logo={g.homeLogo} />
-                    {g.completed ? (
-                      <span className="kiosk-game-row__score">
-                        {g.homeScore} × {g.awayScore}
-                      </span>
-                    ) : (
-                      <span className="kiosk-game-row__x">×</span>
-                    )}
-                    <TeamSide abbr={g.awayAbbr} logo={g.awayLogo} />
-                    <span className="kiosk-game-row__when">{formatWhen(g.date)}</span>
+          <div className="kiosk-sports__col kiosk-sports__col--round">
+            {rounds.map((league) => {
+              // O orçamento de linhas da coluna é dividido entre os campeonatos
+              // (um só = a rodada inteira, 10 jogos); cada grupo ocupa a altura
+              // proporcional aos jogos que mostra, e as linhas crescem pra preencher.
+              const shown = league.matches.slice(0, Math.max(3, Math.floor(ROUND_ROWS_BUDGET / rounds.length)));
+              return (
+                <div
+                  className="kiosk-sports__group kiosk-sports__group--grow"
+                  style={{ flexGrow: shown.length }}
+                  key={`round-${league.slug}`}
+                >
+                  <div className="kiosk-sports__group-title">🗓️ Rodada — {league.name}</div>
+                  <div className="kiosk-sports__rows">
+                    {shown.map((g) => (
+                      <div className="kiosk-game-row kiosk-game-row--compact" key={g.id}>
+                        <TeamSide abbr={g.homeAbbr} logo={g.homeLogo} />
+                        {g.completed ? (
+                          <span className="kiosk-game-row__score">
+                            {g.homeScore} × {g.awayScore}
+                          </span>
+                        ) : (
+                          <span className="kiosk-game-row__x">×</span>
+                        )}
+                        <TeamSide abbr={g.awayAbbr} logo={g.awayLogo} />
+                        <span className="kiosk-game-row__when">{formatWhen(g.date)}</span>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            ))}
+                </div>
+              );
+            })}
           </div>
         </div>
 

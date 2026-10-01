@@ -1,8 +1,8 @@
 import ical from 'node-ical';
 
-const WINDOW_DAYS = 7;
+const WINDOW_DAYS = 8;
 
-// A partir de agora (não da meia-noite de hoje) até 7 dias à frente — assim
+// A partir de agora (não da meia-noite de hoje) até 8 dias à frente — assim
 // um flash de hoje de manhã some da lista sozinho depois que o horário passa,
 // em vez de continuar aparecendo o dia inteiro.
 function windowBounds() {

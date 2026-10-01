@@ -14,7 +14,9 @@ export default function KioskNationalNewsSlide({ externalNews }) {
   // numa TV cheia isso ficaria muito repetitivo lado a lado.
   const deduped = dedupeSimilarTitles(merged);
 
-  const withImage = deduped.filter((item) => item.image).slice(0, 8);
+  // Notícias com foto vêm primeiro; se não houver o bastante (feed sem imagem,
+  // GZH/CBN nunca têm), completa com as sem foto em vez de deixar a tela vazia.
+  const pool = [...deduped.filter((item) => item.image), ...deduped.filter((item) => !item.image)].slice(0, 8);
   const toStory = (item) => ({
     id: `${item.portal}-${item.id}`,
     image: item.image,
@@ -23,10 +25,10 @@ export default function KioskNationalNewsSlide({ externalNews }) {
     badge: <PortalBadge portal={item.portal} />,
   });
 
-  const featured = withImage.slice(0, 2).map(toStory);
+  const featured = pool.slice(0, 2).map(toStory);
   // 6 cards fixos por vez em vez dos 3 do modo normal — tela cheia tem espaço
   // de sobra. Sem rodízio interno: só troca quando a própria tela rodar de novo.
-  const rest = withImage.slice(2, 8).map(toStory);
+  const rest = pool.slice(2, 8).map(toStory);
 
   return (
     <div className="kiosk-slide kiosk-slide--news">

@@ -29,18 +29,21 @@ function mapItems(items, source) {
   }));
 }
 
+// Baixa com o fetch do Node (que descomprime gzip sozinho) em vez do http do
+// rss-parser: o G1 passou a responder com gzip mesmo sem pedir, e o parser
+// falhava com 'Non-whitespace before first tag' — o app caía pro Google
+// Notícias, que não traz imagem nenhuma. Feeds em encoding legado (ex.: UOL em
+// ISO-8859-1) são decodificados manualmente, senão os acentos saem corrompidos.
 async function parseUrl(url, encoding) {
-  if (!encoding) {
-    return parser.parseURL(url);
-  }
-  // Feeds em encoding legado (ex.: UOL em ISO-8859-1) precisam ser decodificados
-  // manualmente antes de virar string, senão acentos saem corrompidos.
-  const response = await fetch(url);
+  const response = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; PlayNews/1.0)' } });
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}`);
   }
   const buffer = await response.arrayBuffer();
-  const xml = new TextDecoder(encoding).decode(buffer);
+  const decoded = new TextDecoder(encoding || 'utf-8').decode(buffer);
+  // O UOL passou a mandar `<rss>` sem `version="2.0"` — o rss-parser rejeita
+  // ("Feed not recognized as RSS 1 or 2") e o app caía pro Google Notícias.
+  const xml = decoded.replace(/<rss(?![^>]*\bversion=)([^>]*)>/i, '<rss version="2.0"$1>');
   return parser.parseString(xml);
 }
 

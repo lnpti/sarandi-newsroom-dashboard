@@ -3954,3 +3954,74 @@ a {
 .di-moon__sub {
   font-size: 16px;
 }
+
+/* Esporte (slide principal) — as 3 colunas ocupam toda a altura que sobra e as
+   linhas de jogo crescem pra preencher (a notícia de baixo fica do próprio tamanho) */
+.kiosk-sports {
+  flex: 1;
+  min-height: 0;
+}
+
+.kiosk-sports__news {
+  flex: 0 0 auto;
+}
+
+.kiosk-sports__col {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 0;
+}
+
+.kiosk-sports__col > .kiosk-sports__group {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.kiosk-sports__rows {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+
+.kiosk-sports__rows > .kiosk-game-row {
+  flex: 1 1 0;
+  min-height: 0;
+  max-height: 96px;
+  margin-top: 0;
+}
+
+.kiosk-sports__col > .kiosk-sports__group > .kiosk-standings {
+  flex: 1;
+  min-height: 0;
+}
+
+.kiosk-sports__col > .kiosk-sports__group > .kiosk-standings > .kiosk-standings-row {
+  flex: 1 1 0;
+  min-height: 0;
+  max-height: 60px;
+}
+
+/* Rodada: linhas um pouco maiores já que ganham altura */
+.kiosk-sports__col--round .kiosk-game-row--compact {
+  font-size: 17px;
+  padding: 4px 16px;
+  gap: 12px;
+}
+
+.kiosk-sports__col--round .kiosk-game-row--compact .kiosk-game-row__logo {
+  width: 30px;
+  height: 30px;
+}
+
+.kiosk-sports__col--round .kiosk-game-row--compact .kiosk-game-row__score {
+  font-size: 20px;
+}
+
+.kiosk-sports__col--round .kiosk-game-row--compact .kiosk-game-row__when {
+  font-size: 14px;
+}
