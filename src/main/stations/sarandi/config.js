@@ -1,6 +1,15 @@
 export const STATION_SLUG = 'sarandi';
 export const RADIO_NAME = 'Rádio Sarandi 103.3';
 
+// Canais de atualização automática — GitHub Releases primeiro; se o GitHub
+// estiver inacessível (rede que bloqueia), cai pro espelho no Cloudflare R2
+// (publicado por scripts/publish-cloudflare.mjs). Mesmos valores do
+// electron-builder.config.js.
+export const UPDATE_FEEDS = {
+  github: { owner: 'lnpti', repo: 'sarandi-newsroom-dashboard' },
+  r2: 'https://pub-8060abbe70084968817647c74ce4ffbc.r2.dev/playnews-sarandi',
+};
+
 export const STREAM_STATUS = {
   type: 'shoutcast',
   url: 'https://vp090.voope.com.br/8052/stats?json=1',

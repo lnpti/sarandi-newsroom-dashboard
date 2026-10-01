@@ -5,6 +5,10 @@
 #   .\publicar.ps1 1.1.0                  → pergunta a emissora, versão explícita
 #   .\publicar.ps1 -Estacao cacique       → Cacique direto, sem perguntar, incrementa o patch
 #   .\publicar.ps1 -Estacao todas         → Sarandi e Cacique, uma atrás da outra, mesma versão
+#
+# Cloudflare R2 (espelho de atualização): se R2_ACCESS_KEY_ID e R2_SECRET_ACCESS_KEY
+# estiverem definidas no terminal, cada build também é enviada pro R2 — ex.:
+#   $env:R2_ACCESS_KEY_ID = "..."; $env:R2_SECRET_ACCESS_KEY = "..."; .\publicar.ps1 -Estacao todas
 
 param(
     [string]$Versao = "",
@@ -146,6 +150,8 @@ if ($LASTEXITCODE -ne 0) {
 # Cada emissora publica pro seu próprio repositório de release (ver
 # electron-builder.config.js), então uma falha numa não deve impedir a outra.
 $resultados = @{}
+$cloudflare = @{}
+$temCredR2 = ($env:R2_ACCESS_KEY_ID -and $env:R2_SECRET_ACCESS_KEY)
 foreach ($est in $Estacoes) {
     Write-Host ""
     Write-Host "==================================================" -ForegroundColor Cyan
@@ -156,6 +162,21 @@ foreach ($est in $Estacoes) {
     $env:STATION = $est
     npm run release
     $resultados[$est] = $LASTEXITCODE
+
+    # Espelho no Cloudflare R2 (canal de atualização alternativo, pra quando o
+    # GitHub estiver inacessível). Precisa rodar AGORA, antes da build da
+    # próxima emissora — as duas geram o mesmo nome de arquivo em dist/.
+    # Sem as credenciais no ambiente, só avisa e segue (não falha a publicação).
+    if ($resultados[$est] -ne 0) {
+        $cloudflare[$est] = "não enviado (build falhou)"
+    } elseif (-not $temCredR2) {
+        $cloudflare[$est] = "não enviado (sem R2_ACCESS_KEY_ID/R2_SECRET_ACCESS_KEY)"
+    } else {
+        Write-Host ""
+        Write-Host "Enviando $est pro Cloudflare R2..." -ForegroundColor Cyan
+        npm run release:cloudflare
+        $cloudflare[$est] = if ($LASTEXITCODE -eq 0) { "ok" } else { "falhou (código $LASTEXITCODE)" }
+    }
 }
 
 # ── 5. Resumo ─────────────────────────────────────────────────────────────────
@@ -167,7 +188,7 @@ Write-Host "==================================================" -ForegroundColor
 $algumaFalhou = $false
 foreach ($est in $Estacoes) {
     if ($resultados[$est] -eq 0) {
-        Write-Host " $est`: publicada com sucesso" -ForegroundColor Green
+        Write-Host " $est`: GitHub ok | Cloudflare: $($cloudflare[$est])" -ForegroundColor Green
     } else {
         Write-Host " $est`: falha na publicação (código $($resultados[$est]))" -ForegroundColor Red
         $algumaFalhou = $true

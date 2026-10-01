@@ -1,6 +1,15 @@
 export const STATION_SLUG = 'cacique';
 export const RADIO_NAME = 'Tua Rádio Cacique';
 
+// Canais de atualização automática — GitHub Releases primeiro; se o GitHub
+// estiver inacessível (rede que bloqueia), cai pro espelho no Cloudflare R2
+// (publicado por scripts/publish-cloudflare.mjs). Mesmos valores do
+// electron-builder.config.js.
+export const UPDATE_FEEDS = {
+  github: { owner: 'lnpti', repo: 'tua-radio-cacique-dashboard' },
+  r2: 'https://pub-8060abbe70084968817647c74ce4ffbc.r2.dev/playnews-cacique',
+};
+
 // Servidor Icecast da plataforma Sintonizar — JSON público de status.
 // icestats.source presente = online (source.listeners = ouvintes atuais).
 export const STREAM_STATUS = {
