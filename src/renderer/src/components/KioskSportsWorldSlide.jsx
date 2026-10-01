@@ -84,7 +84,12 @@ function Panel({ title, icon, games, emptyText, wide }) {
 }
 
 export default function KioskSportsWorldSlide({ football }) {
-  const national = football?.data?.nationalGames || [];
+  // Seleções: encerrados primeiro, depois os demais — cada grupo por data e hora.
+  // (O serviço escolhe os jogos por prioridade — Brasil primeiro; a ordem de
+  // exibição é decidida aqui.)
+  const national = [...(football?.data?.nationalGames || [])].sort(
+    (a, b) => Number(!!b.completed) - Number(!!a.completed) || new Date(a.date) - new Date(b.date)
+  );
   const others = football?.data?.otherGames || [];
 
   // Sem jogo de seleção (ou sem jogo de outros campeonatos), o painel que tem
