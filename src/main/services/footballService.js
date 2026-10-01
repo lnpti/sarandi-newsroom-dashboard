@@ -16,7 +16,8 @@ const TEAM_NEWS_LIMIT = 6;
 // API da ESPN não expõe um número de rodada pra futebol, só um calendário de
 // datas; a maioria dos campeonatos de pontos corridos joga uma rodada inteira
 // dentro de ~3 dias antes/depois.
-const ROUND_WINDOW_DAYS = 3;
+const ROUND_WINDOW_DAYS = 3; // dias passados
+const ROUND_WINDOW_AHEAD_DAYS = 7; // dias à frente (pausa de data FIFA: próxima rodada pode estar a uma semana)
 
 function mapEvent(e, team) {
   const comp = e.competitions[0];
@@ -112,43 +113,190 @@ async function fetchStandings(slug) {
   }
 }
 
+// A ESPN passou a recusar (HTTP 400) consulta por intervalo de datas
+// (`dates=AAAAMMDD-AAAAMMDD`) — tenta o intervalo primeiro (mais barato) e,
+// se falhar, busca dia a dia em paralelo e junta os eventos sem repetir.
+const yyyymmdd = (d) => d.toISOString().slice(0, 10).replace(/-/g, '');
+
+async function fetchScoreboardWindow(slug, daysBack, daysAhead) {
+  const now = new Date();
+  const start = new Date(now);
+  start.setDate(start.getDate() - daysBack);
+  const end = new Date(now);
+  end.setDate(end.getDate() + daysAhead);
+
+  try {
+    return await fetchJson(`${SCOREBOARD_BASE}/${slug}/scoreboard?dates=${yyyymmdd(start)}-${yyyymmdd(end)}`);
+  } catch {
+    // cai pro dia a dia
+  }
+
+  const days = [];
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) days.push(yyyymmdd(d));
+  const jsons = await Promise.all(
+    days.map((day) => fetchJson(`${SCOREBOARD_BASE}/${slug}/scoreboard?dates=${day}`).catch(() => null))
+  );
+  const seen = new Set();
+  const events = [];
+  for (const j of jsons) {
+    for (const e of j?.events || []) {
+      if (seen.has(e.id)) continue;
+      seen.add(e.id);
+      events.push(e);
+    }
+  }
+  const firstOk = jsons.find((j) => j);
+  return { events, leagues: firstOk?.leagues || [] };
+}
+
+// `score` vem como objeto ({ value }) nos jogos do calendário do time, mas
+// como string simples ("2") no scoreboard — normaliza os dois formatos.
+function scoreOf(competitor) {
+  const s = competitor.score;
+  if (s == null || s === '') return null;
+  if (typeof s === 'object') return s.value ?? null;
+  const n = Number(s);
+  return Number.isNaN(n) ? null : n;
+}
+
+function mapScoreboardEvent(e, leagueName) {
+  const comp = e.competitions?.[0];
+  const home = comp?.competitors?.find((c) => c.homeAway === 'home');
+  const away = comp?.competitors?.find((c) => c.homeAway === 'away');
+  if (!home || !away) return null;
+  const state = comp.status?.type?.state; // 'pre' | 'in' | 'post'
+  return {
+    id: e.id,
+    date: e.date,
+    league: leagueName || null,
+    homeAbbr: home.team.abbreviation,
+    homeName: home.team.shortDisplayName || home.team.displayName,
+    homeLogo: home.team.logos?.[0]?.href || home.team.logo || null,
+    homeScore: scoreOf(home),
+    awayAbbr: away.team.abbreviation,
+    awayName: away.team.shortDisplayName || away.team.displayName,
+    awayLogo: away.team.logos?.[0]?.href || away.team.logo || null,
+    awayScore: scoreOf(away),
+    completed: !!comp.status?.type?.completed,
+    live: state === 'in',
+    clock: state === 'in' ? comp.status?.displayClock || null : null,
+  };
+}
+
 // Todos os jogos dos times envolvidos numa janela de dias ao redor de hoje —
 // aproximação de "a rodada" do campeonato (ver ROUND_WINDOW_DAYS acima).
 async function fetchRoundFixtures(slug) {
   try {
-    const now = new Date();
-    const start = new Date(now);
-    start.setDate(start.getDate() - ROUND_WINDOW_DAYS);
-    const end = new Date(now);
-    end.setDate(end.getDate() + ROUND_WINDOW_DAYS);
-    const fmt = (d) => d.toISOString().slice(0, 10).replace(/-/g, '');
-
-    const json = await fetchJson(`${SCOREBOARD_BASE}/${slug}/scoreboard?dates=${fmt(start)}-${fmt(end)}`);
-
-    const matches = (json.events || []).map((e) => {
-      const comp = e.competitions[0];
-      const home = comp.competitors.find((c) => c.homeAway === 'home');
-      const away = comp.competitors.find((c) => c.homeAway === 'away');
-      return {
-        id: e.id,
-        date: e.date,
-        homeAbbr: home.team.abbreviation,
-        // Esse endpoint (scoreboard) não traz `team.logos[]` como os outros
-        // dois usados neste arquivo — só um `team.logo` (string única).
-        homeLogo: home.team.logos?.[0]?.href || home.team.logo || null,
-        homeScore: home.score?.value ?? null,
-        awayAbbr: away.team.abbreviation,
-        awayLogo: away.team.logos?.[0]?.href || away.team.logo || null,
-        awayScore: away.score?.value ?? null,
-        completed: !!comp.status?.type?.completed,
-      };
-    });
-
+    const json = await fetchScoreboardWindow(slug, ROUND_WINDOW_DAYS, ROUND_WINDOW_AHEAD_DAYS);
+    // Janela maior pega 2 rodadas — fica com os jogos mais próximos de agora e
+    // devolve em ordem de data.
+    const now = Date.now();
+    const matches = (json.events || [])
+      .map((e) => mapScoreboardEvent(e))
+      .filter(Boolean)
+      .sort((a, b) => Math.abs(new Date(a.date) - now) - Math.abs(new Date(b.date) - now))
+      .slice(0, 10)
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
     const logo = json.leagues?.[0]?.logos?.[0]?.href || null;
     return { matches, logo };
   } catch {
     return { matches: [], logo: null };
   }
+}
+
+// Principais campeonatos do mundo + Libertadores (2º slide de esporte), na
+// ordem de prioridade. O scoreboard sem data devolve a "rodada" corrente de
+// cada competição — filtra pra janela recente/próxima porque algumas devolvem
+// jogo velho (final de Copa, etc.).
+const TOP_COMPETITIONS = [
+  { slug: 'conmebol.libertadores', label: 'Libertadores' },
+  { slug: 'uefa.champions', label: 'Champions League' },
+  { slug: 'eng.1', label: 'Premier League' },
+  { slug: 'esp.1', label: 'La Liga' },
+  { slug: 'ita.1', label: 'Serie A (Itália)' },
+  { slug: 'ger.1', label: 'Bundesliga' },
+  { slug: 'fra.1', label: 'Ligue 1' },
+  { slug: 'conmebol.sudamericana', label: 'Sul-Americana' },
+  { slug: 'uefa.europa', label: 'Europa League' },
+  { slug: 'por.1', label: 'Liga Portugal' },
+];
+const NATIONAL_COMPETITIONS = [
+  { slug: 'fifa.friendly', label: 'Amistoso' },
+  { slug: 'uefa.nations', label: 'Nations League' },
+  { slug: 'concacaf.nations.league', label: 'Nations League Concacaf' },
+  { slug: 'fifa.world', label: 'Copa do Mundo' },
+  { slug: 'fifa.worldq.conmebol', label: 'Eliminatórias Sul-Americanas' },
+  { slug: 'fifa.worldq.uefa', label: 'Eliminatórias Europeias' },
+  { slug: 'conmebol.america', label: 'Copa América' },
+];
+const DAY_MS = 86400000;
+const NATIONAL_GAMES_LIMIT = 8;
+const OTHER_GAMES_LIMIT = 14;
+// Dias à frente: seleções 7; campeonatos de clubes 14, porque numa pausa de data
+// FIFA a próxima rodada das ligas europeias fica a mais de uma semana.
+const NATIONAL_AHEAD_DAYS = 7;
+const OTHER_AHEAD_DAYS = 14;
+// No máximo N jogos por competição por rodada de sorteio, pra Libertadores,
+// Champions e as ligas dividirem a tela em vez de uma só ocupar tudo.
+const OTHER_PER_COMPETITION = 3;
+// Siglas ESPN de seleções que o público reconhece — só pra ordenação.
+const FAMOUS_ABBRS = new Set([
+  'ARG', 'URU', 'COL', 'CHI', 'PAR', 'ECU', 'PER', 'FRA', 'ESP', 'ENG', 'GER', 'POR', 'ITA', 'NED',
+  'BEL', 'CRO', 'MEX', 'USA', 'JPN', 'KOR', 'MAR', 'SEN',
+]);
+
+async function fetchCompetitionEvents({ slug, label }, minTs, maxTs) {
+  try {
+    const json = await fetchJson(`${SCOREBOARD_BASE}/${slug}/scoreboard`);
+    return (json.events || [])
+      .filter((e) => {
+        const t = new Date(e.date).getTime();
+        return t >= minTs && t <= maxTs;
+      })
+      .map((e) => mapScoreboardEvent(e, label))
+      .filter(Boolean)
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+  } catch {
+    return [];
+  }
+}
+
+function dedupeGames(games) {
+  const seen = new Set();
+  return games.filter((g) => (seen.has(g.id) ? false : (seen.add(g.id), true)));
+}
+
+// Seleções: Brasil primeiro, depois as conhecidas, depois o resto (amistoso de
+// seleção obscura não deve empurrar o jogo da Argentina).
+async function fetchNationalGames() {
+  const now = Date.now();
+  const batches = await Promise.all(
+    NATIONAL_COMPETITIONS.map((c) => fetchCompetitionEvents(c, now - DAY_MS, now + NATIONAL_AHEAD_DAYS * DAY_MS))
+  );
+  const rank = (g) => {
+    if (g.homeAbbr === 'BRA' || g.awayAbbr === 'BRA') return 0;
+    if (FAMOUS_ABBRS.has(g.homeAbbr) || FAMOUS_ABBRS.has(g.awayAbbr)) return 1;
+    return 2;
+  };
+  return dedupeGames(batches.flat())
+    .sort((a, b) => rank(a) - rank(b) || new Date(a.date) - new Date(b.date))
+    .slice(0, NATIONAL_GAMES_LIMIT);
+}
+
+// Clubes: sorteia por competição na ordem de prioridade (até N de cada, em
+// rodadas) e só no fim ordena por data pra exibir.
+async function fetchTopCompetitionGames() {
+  const now = Date.now();
+  const lists = await Promise.all(
+    TOP_COMPETITIONS.map((c) => fetchCompetitionEvents(c, now - DAY_MS, now + OTHER_AHEAD_DAYS * DAY_MS))
+  );
+  const picked = [];
+  for (let round = 0; round < OTHER_PER_COMPETITION; round++) {
+    for (const list of lists) {
+      if (list[round] && picked.length < OTHER_GAMES_LIMIT) picked.push(list[round]);
+    }
+  }
+  return dedupeGames(picked).sort((a, b) => new Date(a.date) - new Date(b.date));
 }
 
 function mapArticle(a) {
@@ -239,7 +387,7 @@ export async function fetchFootball() {
   }
 
   const leagueEntries = [...leagues.entries()];
-  const [standingsResults, roundResults, newsResults, teamNews] = await Promise.all([
+  const [standingsResults, roundResults, newsResults, teamNews, otherGames, nationalGames] = await Promise.all([
     Promise.all(leagueEntries.map(([slug]) => fetchStandings(slug))),
     Promise.all(leagueEntries.map(([slug]) => fetchRoundFixtures(slug))),
     Promise.all(leagueEntries.map(([slug]) => fetchLeagueNews(slug))),
@@ -247,6 +395,8 @@ export async function fetchFootball() {
       leagueEntries.map(([slug]) => slug),
       FOOTBALL_TEAMS
     ),
+    fetchTopCompetitionGames(),
+    fetchNationalGames(),
   ]);
 
   const standings = leagueEntries
@@ -278,5 +428,7 @@ export async function fetchFootball() {
     trackedTeamNames: FOOTBALL_TEAMS.map((t) => t.name),
     news,
     teamNews,
+    otherGames,
+    nationalGames,
   };
 }

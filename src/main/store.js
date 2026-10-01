@@ -21,6 +21,7 @@ function initialSnapshot() {
     holidays: emptySourceNode(),
     lottery: emptySourceNode(),
     saint: emptySourceNode(),
+    today: emptySourceNode(),
     calendar: emptySourceNode(),
     youtube: emptySourceNode(),
     externalNews: Object.fromEntries(EXTERNAL_KEYS.map((k) => [k, emptySourceNode()])),
@@ -38,6 +39,7 @@ function initialSnapshot() {
     holidays: { ...base.holidays, ...cached.holidays },
     lottery: { ...base.lottery, ...cached.lottery },
     saint: { ...base.saint, ...cached.saint },
+    today: { ...base.today, ...cached.today },
     calendar: { ...base.calendar, ...cached.calendar },
     youtube: { ...base.youtube, ...cached.youtube },
     externalNews: Object.fromEntries(

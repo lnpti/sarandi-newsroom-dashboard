@@ -4,6 +4,7 @@ import KioskNationalNewsSlide from './KioskNationalNewsSlide.jsx';
 import KioskRegionalNewsSlide from './KioskRegionalNewsSlide.jsx';
 import KioskWeatherSlide from './KioskWeatherSlide.jsx';
 import KioskSportsSlide from './KioskSportsSlide.jsx';
+import KioskSportsWorldSlide from './KioskSportsWorldSlide.jsx';
 import KioskDailyInfoSlide from './KioskDailyInfoSlide.jsx';
 import KioskCurrencySlide from './KioskCurrencySlide.jsx';
 import KioskCalendarSlide from './KioskCalendarSlide.jsx';
@@ -17,7 +18,8 @@ const SLIDES = {
   regionalNews: { Component: KioskRegionalNewsSlide, props: ['regionalNews'] },
   weather: { Component: KioskWeatherSlide, props: ['weather'] },
   football: { Component: KioskSportsSlide, props: ['football'] },
-  dailyInfo: { Component: KioskDailyInfoSlide, props: ['lottery', 'holidays', 'saint'] },
+  footballWorld: { Component: KioskSportsWorldSlide, props: ['football'] },
+  dailyInfo: { Component: KioskDailyInfoSlide, props: ['lottery', 'holidays', 'saint', 'today'] },
   currency: { Component: KioskCurrencySlide, props: ['currency'] },
   calendar: { Component: KioskCalendarSlide, props: ['calendar'] },
   youtube: { Component: KioskYoutubeSlide, props: ['youtube'] },
@@ -29,7 +31,8 @@ export const KIOSK_SLIDE_LABELS = {
   regionalNews: 'Notícias regionais',
   weather: 'Clima',
   football: 'Esporte',
-  dailyInfo: 'Loterias, feriados e santo do dia',
+  footballWorld: 'Esporte: seleções e outros campeonatos',
+  dailyInfo: 'Painel do dia (santo, loterias, feriados, efemérides)',
   currency: 'Cotações',
   calendar: 'Flashs agendados',
   youtube: 'Vídeos do YouTube',

@@ -18,10 +18,12 @@ export default function ListenerGauge({ listeners, history }) {
   return (
     <div className="listener-gauge">
       <span className="listener-gauge__number">{data ? data.current : '—'}</span>
-      <span className="listener-gauge__label">ouvintes online</span>
-      {data && (
-        <span className="listener-gauge__secondary">pico hoje: {peakToday(history, data.current)}</span>
-      )}
+      <span className="listener-gauge__text">
+        <span className="listener-gauge__label">ouvintes online</span>
+        {data && (
+          <span className="listener-gauge__secondary">pico hoje: {peakToday(history, data.current)}</span>
+        )}
+      </span>
     </div>
   );
 }

@@ -1,13 +1,14 @@
-# publicar.ps1 — commita, versiona e publica o dashboard (Sarandi ou Cacique)
-# Uso: .\publicar.ps1 [versão] [-Estacao sarandi|cacique]
+# publicar.ps1 — commita, versiona e publica o dashboard (Sarandi, Cacique ou as duas)
+# Uso: .\publicar.ps1 [versão] [-Estacao sarandi|cacique|todas]
 # Exemplos:
 #   .\publicar.ps1                        → pergunta a emissora, incrementa o patch (1.0.5 → 1.0.6)
 #   .\publicar.ps1 1.1.0                  → pergunta a emissora, versão explícita
 #   .\publicar.ps1 -Estacao cacique       → Cacique direto, sem perguntar, incrementa o patch
+#   .\publicar.ps1 -Estacao todas         → Sarandi e Cacique, uma atrás da outra, mesma versão
 
 param(
     [string]$Versao = "",
-    [ValidateSet("", "sarandi", "cacique")]
+    [ValidateSet("", "sarandi", "cacique", "todas")]
     [string]$Estacao = ""
 )
 
@@ -19,12 +20,15 @@ if ($Estacao -eq "") {
     Write-Host "Qual emissora publicar?"
     Write-Host "  1) Sarandi"
     Write-Host "  2) Cacique"
-    $escolha = Read-Host "Escolha (1/2)"
+    Write-Host "  3) Todas"
+    $escolha = Read-Host "Escolha (1/2/3)"
     switch ($escolha.Trim()) {
         "1" { $Estacao = "sarandi" }
         "2" { $Estacao = "cacique" }
+        "3" { $Estacao = "todas" }
         "sarandi" { $Estacao = "sarandi" }
         "cacique" { $Estacao = "cacique" }
+        "todas" { $Estacao = "todas" }
         default {
             Write-Host "Opção inválida." -ForegroundColor Red
             Read-Host "Pressione Enter para fechar"
@@ -33,7 +37,9 @@ if ($Estacao -eq "") {
     }
 }
 
-$env:STATION = $Estacao
+# Uma versão só, compartilhada entre as emissoras selecionadas — o
+# package.json/git são o mesmo repositório de código pras duas.
+$Estacoes = if ($Estacao -eq "todas") { @("sarandi", "cacique") } else { @($Estacao) }
 
 # Lê a versão atual do package.json
 $versaoAtual = (Get-Content "package.json" -Raw | ConvertFrom-Json).version
@@ -46,7 +52,7 @@ if ($Versao -eq "") {
 }
 
 Write-Host ""
-Write-Host "Emissora     : $Estacao"
+Write-Host "Emissora(s)  : $($Estacoes -join ', ')"
 Write-Host "Versão atual : $versaoAtual"
 Write-Host "Nova versão  : $Versao"
 Write-Host ""
@@ -85,7 +91,7 @@ if (-not $env:GH_TOKEN) {
 # Cacique depende do Firecrawl pra notícias — a chave vem do .env local
 # (nunca commitado) e é embutida no build. Sem o arquivo, o app empacotado
 # não conseguiria buscar notícias.
-if ($Estacao -eq "cacique" -and -not (Test-Path ".env")) {
+if ($Estacoes -contains "cacique" -and -not (Test-Path ".env")) {
     Write-Host ""
     Write-Host "ERRO: arquivo .env não encontrado (precisa de MAIN_VITE_FIRECRAWL_API_KEY)." -ForegroundColor Red
     Read-Host "Pressione Enter para fechar"
@@ -136,21 +142,45 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-# ── 4. Build e publicação ────────────────────────────────────────────────────
-Write-Host ""
-Write-Host "Iniciando build e publicação..."
-Write-Host ""
-npm run release
+# ── 4. Build e publicação — uma vez por emissora selecionada ────────────────
+# Cada emissora publica pro seu próprio repositório de release (ver
+# electron-builder.config.js), então uma falha numa não deve impedir a outra.
+$resultados = @{}
+foreach ($est in $Estacoes) {
+    Write-Host ""
+    Write-Host "==================================================" -ForegroundColor Cyan
+    Write-Host " Publicando $est (v$versaoNova)..." -ForegroundColor Cyan
+    Write-Host "==================================================" -ForegroundColor Cyan
+    Write-Host ""
 
-if ($LASTEXITCODE -eq 0) {
-    Write-Host ""
-    Write-Host "Versão $versaoNova publicada com sucesso no GitHub Releases!" -ForegroundColor Green
-    Write-Host "Os apps instalados detectarão a atualização em até ~30 min."
+    $env:STATION = $est
+    npm run release
+    $resultados[$est] = $LASTEXITCODE
+}
+
+# ── 5. Resumo ─────────────────────────────────────────────────────────────────
+Write-Host ""
+Write-Host "==================================================" -ForegroundColor Cyan
+Write-Host " Resumo da publicação v$versaoNova" -ForegroundColor Cyan
+Write-Host "==================================================" -ForegroundColor Cyan
+
+$algumaFalhou = $false
+foreach ($est in $Estacoes) {
+    if ($resultados[$est] -eq 0) {
+        Write-Host " $est`: publicada com sucesso" -ForegroundColor Green
+    } else {
+        Write-Host " $est`: falha na publicação (código $($resultados[$est]))" -ForegroundColor Red
+        $algumaFalhou = $true
+    }
+}
+
+Write-Host ""
+if (-not $algumaFalhou) {
+    Write-Host "Os apps instalados detectarão a atualização em até ~30 min." -ForegroundColor Green
 } else {
-    Write-Host ""
-    Write-Host "Falha na publicação (código $LASTEXITCODE)." -ForegroundColor Red
-    Write-Host "O código já foi enviado ao GitHub mas o instalador não foi gerado."
-    Write-Host "Rode 'npm run release' manualmente após corrigir o problema."
+    Write-Host "O código já foi enviado ao GitHub. Pra emissora que falhou, rode:"
+    Write-Host "  `$env:STATION = 'sarandi_ou_cacique'; npm run release"
+    Write-Host "após corrigir o problema."
 }
 
 Read-Host "Pressione Enter para fechar"

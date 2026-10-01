@@ -1,38 +1,4 @@
-function dayLabel(dateStr) {
-  const today = new Date();
-  // dateStr é só "YYYY-MM-DD" (data do evento, sem horário) — new Date(dateStr)
-  // interpreta isso como meia-noite UTC, que num fuso atrás de UTC (ex.: Brasil)
-  // "volta" pro dia anterior ao converter de volta pro horário local. Monta a
-  // data a partir dos componentes pra ficar sempre no fuso local.
-  const [y, m, d] = dateStr.split('-').map(Number);
-  const target = new Date(y, m - 1, d);
-  const sameDay = (a, b) =>
-    a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
-
-  if (sameDay(target, today)) return 'Hoje';
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  if (sameDay(target, tomorrow)) return 'Amanhã';
-  return target.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-}
-
-function formatTime(isoDate) {
-  return new Date(isoDate).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-}
-
-function groupByDay(events) {
-  const groups = [];
-  for (const ev of events) {
-    const key = ev.start.slice(0, 10);
-    const last = groups[groups.length - 1];
-    if (last && last.key === key) {
-      last.events.push(ev);
-    } else {
-      groups.push({ key, events: [ev] });
-    }
-  }
-  return groups;
-}
+import { dayLabel, formatTime, groupByDay } from '../calendarUtils.js';
 
 // Coluna própria (não um painel dentro da coluna de widgets) — some por
 // completo quando não há nenhum compromisso, em vez de reservar espaço vazio.

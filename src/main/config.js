@@ -74,6 +74,7 @@ export const DEFAULT_POLL_INTERVALS_MS = {
   holidays: 12 * 60 * 60 * 1000,
   lottery: 60 * 60 * 1000,
   saint: 12 * 60 * 60 * 1000,
+  today: 6 * 60 * 60 * 1000,
   calendar: 15 * 60 * 1000,
   youtube: 30 * 60 * 1000,
 };

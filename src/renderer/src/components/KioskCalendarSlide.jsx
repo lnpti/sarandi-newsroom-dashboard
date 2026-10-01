@@ -1,66 +1,102 @@
-// Quantos eventos mostrar no total — é uma TV sem ninguém pra rolar a tela,
-// então corta em vez de listar os 7 dias inteiros se tiver muita coisa.
+import { useEffect, useState } from 'react';
+import { dayKey, dayLabel, formatTime, groupByDay } from '../calendarUtils.js';
+
+// Quantos flashs mostrar além do destaque — é uma TV sem ninguém pra rolar.
 const EVENT_LIMIT = 12;
+const MAX_DAY_COLUMNS = 4;
 
-function dayLabel(dateStr) {
-  const today = new Date();
-  // dateStr é só "YYYY-MM-DD" — new Date(dateStr) interpreta como meia-noite
-  // UTC, que num fuso atrás de UTC (ex.: Brasil) "volta" pro dia anterior ao
-  // converter de volta pro horário local. Monta a partir dos componentes.
-  const [y, m, d] = dateStr.split('-').map(Number);
-  const target = new Date(y, m - 1, d);
-  const sameDay = (a, b) =>
-    a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
-
-  if (sameDay(target, today)) return 'Hoje';
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  if (sameDay(target, tomorrow)) return 'Amanhã';
-  return target.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', weekday: 'long' });
+// Re-renderiza de tempos em tempos pra a contagem regressiva e o corte dos
+// flashs que já passaram não dependerem do próximo ciclo de busca (15 min).
+function useNow(intervalMs) {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), intervalMs);
+    return () => clearInterval(id);
+  }, [intervalMs]);
+  return now;
 }
 
-function formatTime(isoDate) {
-  return new Date(isoDate).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-}
-
-function groupByDay(events) {
-  const groups = [];
-  for (const ev of events) {
-    const key = ev.start.slice(0, 10);
-    const last = groups[groups.length - 1];
-    if (last && last.key === key) {
-      last.events.push(ev);
-    } else {
-      groups.push({ key, events: [ev] });
-    }
+function describeStart(ev, now) {
+  const start = new Date(ev.start);
+  const end = new Date(ev.end);
+  if (ev.allDay) return { tag: 'Dia inteiro', countdown: dayLabel(dayKey(ev), { long: true }) };
+  if (start <= now && end > now) return { tag: 'Acontecendo agora', countdown: `até ${formatTime(ev.end)}`, live: true };
+  const mins = Math.round((start - now) / 60000);
+  if (mins < 60) return { tag: 'Próximo flash', countdown: mins <= 1 ? 'em instantes' : `em ${mins} min` };
+  if (mins < 24 * 60) {
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return { tag: 'Próximo flash', countdown: m === 0 ? `em ${h}h` : `em ${h}h ${m}min` };
   }
-  return groups;
+  return { tag: 'Próximo flash', countdown: dayLabel(dayKey(ev), { long: true }) };
+}
+
+function Hero({ ev, now }) {
+  const { tag, countdown, live } = describeStart(ev, now);
+  return (
+    <section className={`fl-hero ${live ? 'fl-hero--live' : ''}`}>
+      <div className="fl-hero__left">
+        <span className="fl-hero__tag">
+          {live && <span className="fl-hero__dot" />}
+          {tag}
+        </span>
+        <span className="fl-hero__time">{ev.allDay ? 'Dia inteiro' : formatTime(ev.start)}</span>
+        <span className="fl-hero__countdown">{countdown}</span>
+      </div>
+      <div className="fl-hero__right">
+        <h2 className="fl-hero__title">{ev.title}</h2>
+        {ev.location && <p className="fl-hero__location">📍 {ev.location}</p>}
+      </div>
+    </section>
+  );
+}
+
+function DayCard({ group }) {
+  return (
+    <section className="fl-day">
+      <h3 className="fl-day__label">{dayLabel(group.key, { long: true })}</h3>
+      <div className="fl-day__events">
+        {group.events.map((ev) => (
+          <div className="fl-event" key={ev.id}>
+            <span className="fl-event__time">{ev.allDay ? 'Dia todo' : formatTime(ev.start)}</span>
+            <div className="fl-event__main">
+              <span className="fl-event__title">{ev.title}</span>
+              {ev.location && <span className="fl-event__location">{ev.location}</span>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
 }
 
 export default function KioskCalendarSlide({ calendar }) {
-  const events = (calendar?.data || []).slice(0, EVENT_LIMIT);
-  const groups = groupByDay(events);
+  const now = useNow(30000);
+  // O dado só é recalculado a cada 15 min — corta aqui o que já acabou.
+  const events = (calendar?.data || []).filter((ev) => new Date(ev.end) > now);
+  const next = events[0];
+  const groups = groupByDay(events.slice(1, 1 + EVENT_LIMIT));
 
   return (
     <div className="kiosk-slide kiosk-slide--calendar">
       <div className="kiosk-slide__header">🗓️ Flashs Agendados</div>
-      <div className="kiosk-slide__body kiosk-calendar">
-        {groups.length === 0 && <p className="kiosk-calendar__empty">Nenhum compromisso agendado.</p>}
-        {groups.map((group) => (
-          <div className="kiosk-calendar__day" key={group.key}>
-            <div className="kiosk-calendar__day-label">{dayLabel(group.key)}</div>
-            {group.events.map((ev) => (
-              <div className="kiosk-calendar__row" key={ev.id}>
-                <span className="kiosk-calendar__time">{ev.allDay ? 'Dia inteiro' : formatTime(ev.start)}</span>
-                <div className="kiosk-calendar__main">
-                  <span className="kiosk-calendar__title">{ev.title}</span>
-                  {ev.location && <span className="kiosk-calendar__location">{ev.location}</span>}
-                </div>
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
+      {!next ? (
+        <p className="fl-empty">Nenhum compromisso agendado.</p>
+      ) : (
+        <div className="fl">
+          <Hero ev={next} now={now} />
+          {groups.length > 0 && (
+            <div
+              className="fl-days"
+              style={{ '--fl-cols': Math.min(groups.length, MAX_DAY_COLUMNS) }}
+            >
+              {groups.map((group) => (
+                <DayCard key={group.key} group={group} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

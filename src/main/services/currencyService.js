@@ -39,7 +39,7 @@ async function fetchYahooIndex(symbol) {
 // PETR4/VALE3), como um telejornal mostraria.
 const B3_MOVERS_FETCH_LIMIT = 200;
 const B3_MOVERS_MIN_VOLUME = 1_000_000;
-const B3_MOVERS_TOP_N = 10;
+const B3_MOVERS_TOP_N = 5;
 
 // A brapi só devolve a razão social ("GRUPO CASAS BAHIA S.A."), não o nome
 // fantasia que o público reconhece ("Casas Bahia") — não existe fonte
@@ -66,14 +66,49 @@ const B3_FANTASY_NAMES = {
   SLCE: 'SLC Agrícola', ALPA: 'Alpargatas', LWSA: 'Locaweb', TOTS: 'Totvs',
   POSI: 'Positivo', INTB: 'Intelbras', NTCO: 'Natura&Co', PRIO: 'PetroRio',
   CSMG: 'Copasa', TIMS: 'TIM', VIVT: 'Vivo', FESA: 'Ferbasa', CASH: 'Méliuz',
-  VSTE: 'Veste',
+  VSTE: 'Veste', BRKM: 'Braskem', SIMH: 'Simpar', SEQL: 'Sequoia Logística',
+  AMBP: 'Ambipar', CURY: 'Cury', EMBJ: 'Embraer', GMAT: 'Grupo Mateus',
+  MOVI: 'Movida', VAMO: 'Vamos', CMIN: 'CSN Mineração', BRAP: 'Bradespar',
+  BRFS: 'BRF', SMFT: 'Smart Fit', ASAI: 'Assaí', MULT: 'Multiplan',
+  IGTI: 'Iguatemi', LJQQ: 'Quero-Quero', PETZ: 'Petz', SBFG: 'Grupo SBF',
+  VIVA: 'Vivara', ARZZ: 'Arezzo', GRND: 'Grendene', MDIA: 'M. Dias Branco',
+  CAML: 'Camil', ORVR: 'Orizon', AURE: 'Auren', NEOE: 'Neoenergia',
+  CPFE: 'CPFL', ALUP: 'Alupar', ENEV: 'Eneva', EGIE: 'Engie', SAPR: 'Sanepar',
+  BRSR: 'Banrisul', BPAN: 'Banco Pan', BMGB: 'Banco BMG', PSSA: 'Porto Seguro',
+  BBSE: 'BB Seguridade', CXSE: 'Caixa Seguridade', IRBR: 'IRB Brasil',
+  STBP: 'Santos Brasil', TEND: 'Tenda', PLPL: 'Plano&Plano', JHSF: 'JHSF',
+  ALOS: 'Allos', GOAU: 'Metalúrgica Gerdau', FRAS: 'Fras-le', TUPY: 'Tupy',
+  RAPT: 'Randon', POMO: 'Marcopolo', KEPL: 'Kepler Weber', ROMI: 'Romi',
+  LEVE: 'Mahle Metal Leve', DXCO: 'Dexco', MILS: 'Mills', RECV: 'PetroReconcavo',
+  VBBR: 'Vibra', CBAV: 'CBA', LAVV: 'Lavvi',
 };
+
+// Razão social crua → algo legível quando o ticker não está na tabela:
+// tira "S.A.", "S/A", "LTDA", "PARTICIPACOES E EMPREENDIMENTOS" etc. e põe em
+// maiúscula só a 1ª letra de cada palavra ("SEQUOIA LOGISTICA E TRANSPORTES S.A"
+// → "Sequoia Logistica E Transportes").
+function prettifyLegalName(name) {
+  if (!name) return name;
+  const cleaned = name
+    .replace(/\bS\.?\s?\/?\s?A\.?\b/gi, '')
+    .replace(/\bLTDA\.?\b/gi, '')
+    .replace(/\bPARTICIPACOES( E EMPREENDIMENTOS)?\b/gi, '')
+    .replace(/\bCIA\.?\b/gi, 'Cia')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/[-\s]+$/, '')
+    .trim();
+  if (!cleaned) return name;
+  return cleaned
+    .toLowerCase()
+    .replace(/(^|\s)(\S)/g, (_, sp, ch) => sp + ch.toUpperCase())
+    .replace(/\b(E|De|Da|Do|Das|Dos)\b/g, (m) => m.toLowerCase());
+}
 
 // Tickers da B3 são a sigla da empresa + 1 ou 2 dígitos (classe da ação,
 // ex.: PETR3/PETR4) — tira os dígitos pra achar a empresa na tabela.
 function fantasyName(ticker, fallbackName) {
   const base = (ticker || '').replace(/\d+$/, '');
-  return B3_FANTASY_NAMES[base] || fallbackName;
+  return B3_FANTASY_NAMES[base] || prettifyLegalName(fallbackName);
 }
 
 function mapStock(s) {

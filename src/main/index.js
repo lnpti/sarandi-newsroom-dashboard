@@ -21,6 +21,7 @@ import { fetchFootball } from './services/footballService.js';
 import { fetchHolidays } from './services/holidaysService.js';
 import { fetchLottery } from './services/lotteryService.js';
 import { fetchSaint } from './services/saintService.js';
+import { fetchToday } from './services/todayService.js';
 import { fetchCalendar } from './services/calendarService.js';
 import { fetchYoutubeVideos } from './services/youtubeService.js';
 import { notifyNewRadioNews } from './notifier.js';
@@ -208,6 +209,14 @@ function startPollers(store, settings, getSettings) {
     onResult: (key, patch) => store.update(key, patch),
   });
   pollers.saint.start();
+
+  pollers.today = createPoller({
+    key: 'today',
+    intervalMs: settings.today,
+    fetchFn: fetchToday,
+    onResult: (key, patch) => store.update(key, patch),
+  });
+  pollers.today.start();
 
   pollers.calendar = createPoller({
     key: 'calendar',

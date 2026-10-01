@@ -27,6 +27,7 @@ function defaults() {
       'regionalNews',
       'weather',
       'football',
+      'footballWorld',
       'dailyInfo',
       'currency',
       'calendar',
@@ -67,6 +68,20 @@ export function loadSettings() {
     const raw = readFileSync(settingsPath(), 'utf-8');
     const merged = { ...defaults(), ...JSON.parse(raw) };
     merged.kioskEnabledSlides = migrateKioskSlides(merged.kioskEnabledSlides, merged.youtubeUrl);
+
+    // Telas novas entram no rodízio UMA vez só (marcador persistido) — senão
+    // quem desmarcasse a tela em Configurações a veria voltar a cada abertura.
+    const done = new Set(merged.kioskSlidesMigrated || []);
+    if (!done.has('footballWorld') && Array.isArray(merged.kioskEnabledSlides)) {
+      if (!merged.kioskEnabledSlides.includes('footballWorld')) {
+        const idx = merged.kioskEnabledSlides.indexOf('football');
+        const next = [...merged.kioskEnabledSlides];
+        next.splice(idx >= 0 ? idx + 1 : next.length, 0, 'footballWorld');
+        merged.kioskEnabledSlides = next;
+      }
+      done.add('footballWorld');
+    }
+    merged.kioskSlidesMigrated = [...done];
     return merged;
   } catch {
     return defaults();
