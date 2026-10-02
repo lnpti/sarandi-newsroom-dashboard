@@ -1,9 +1,11 @@
+import FeaturedStoriesRow from './FeaturedStoriesRow.jsx';
 import TopStoriesRow from './TopStoriesRow.jsx';
+import { SPORTS_PAGE_LABELS, getSportsData, getSportsPages } from '../sportsPages.js';
+import { dayLabel, timeLabel } from '../sportsFormat.js';
 
-// Total de jogos de rodada na coluna (somando os campeonatos) — precisa caber
-// na tela sem rolar (é uma TV sem ninguém mexendo), então corta em vez de
-// listar tudo. Um campeonato só mostra a rodada inteira do Brasileirão (10).
-const ROUND_ROWS_BUDGET = 10;
+// Quantas linhas da tabela de classificação aparecem (o resto some, mas os
+// times acompanhados são sempre mostrados, mesmo fora do topo).
+const STANDINGS_TOP = 8;
 
 function toSportsStory(item) {
   return {
@@ -15,203 +17,203 @@ function toSportsStory(item) {
   };
 }
 
-// Mistura notícias específicas dos times acompanhados com notícias gerais do
-// campeonato num só card de 6 — até 3 de cada, mas se um lado tiver menos
-// (o filtro por time nem sempre acha o suficiente no dia), o outro lado
-// preenche o resto, sem duplicar (a mesma matéria pode vir nos dois feeds).
-function combineNews(teamNews, generalNews, total, teamQuota) {
-  const seen = new Set();
-  const result = [];
-
-  for (const item of teamNews) {
-    if (result.length >= teamQuota) break;
-    if (seen.has(item.id)) continue;
-    seen.add(item.id);
-    result.push(item);
-  }
-
-  for (const item of generalNews) {
-    if (result.length >= total) break;
-    if (seen.has(item.id)) continue;
-    seen.add(item.id);
-    result.push(item);
-  }
-
-  return result;
-}
-
-function formatWhen(dateStr) {
-  const d = new Date(dateStr);
-  const today = new Date();
-  const sameDay = d.toDateString() === today.toDateString();
-  const time = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-  if (sameDay) return `Hoje ${time}`;
-  const day = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-  return `${day} · ${time}`;
-}
-
-function TeamSide({ abbr, logo }) {
+function Side({ name, abbr, logo, align }) {
   return (
-    <span className="kiosk-game-row__side">
-      {logo && <img className="kiosk-game-row__logo" src={logo} alt="" />}
-      <span className="kiosk-game-row__abbr">{abbr}</span>
-    </span>
-  );
-}
-
-function ResultRow({ game }) {
-  return (
-    <div className="kiosk-game-row">
-      <TeamSide abbr={game.homeAbbr} logo={game.homeLogo} />
-      <span className="kiosk-game-row__score">
-        {game.homeScore} × {game.awayScore}
-      </span>
-      <TeamSide abbr={game.awayAbbr} logo={game.awayLogo} />
-      <span className="kiosk-game-row__when">{formatWhen(game.date)}</span>
+    <div className={`sp-side sp-side--${align}`}>
+      {logo ? <img className="sp-side__logo" src={logo} alt="" /> : <span className="sp-side__logo sp-side__logo--empty" />}
+      <span className="sp-side__name">{name || abbr}</span>
     </div>
   );
 }
 
-function UpcomingRow({ game }) {
+function Game({ game, showLeague = true }) {
+  const hasScore = (game.completed || game.live) && game.homeScore != null && game.awayScore != null;
   return (
-    <div className="kiosk-game-row">
-      <TeamSide abbr={game.homeAbbr} logo={game.homeLogo} />
-      <span className="kiosk-game-row__x">×</span>
-      <TeamSide abbr={game.awayAbbr} logo={game.awayLogo} />
-      <span className="kiosk-game-row__when">
-        {game.league && <span className="kiosk-game-row__league">{game.league}</span>}
-        {formatWhen(game.date)}
-      </span>
+    <div className={`sp-game ${game.live ? 'sw-game--live' : ''}`}>
+      <div className="sp-game__meta">
+        <span className="sp-game__league">{showLeague ? game.league : ''}</span>
+        {game.live ? (
+          <span className="sw-game__live">
+            <span className="sw-game__live-dot" /> AO VIVO{game.clock ? ` · ${game.clock}` : ''}
+          </span>
+        ) : (
+          <span>
+            {game.completed ? 'Encerrado · ' : ''}
+            {dayLabel(game.date)}
+          </span>
+        )}
+      </div>
+      <div className="sp-game__row">
+        <Side name={game.homeName} abbr={game.homeAbbr} logo={game.homeLogo} align="home" />
+        <div className="sp-game__center">
+          {hasScore ? (
+            <span className="sp-game__score">
+              {game.homeScore}
+              <span className="sp-game__score-x">×</span>
+              {game.awayScore}
+            </span>
+          ) : (
+            <span className="sp-game__time">{timeLabel(game.date)}</span>
+          )}
+        </div>
+        <Side name={game.awayName} abbr={game.awayAbbr} logo={game.awayLogo} align="away" />
+      </div>
     </div>
   );
 }
 
-// Tabela completa é demais pra uma tela de rodízio — mostra o topo (6) e, se
-// os times acompanhados não estiverem lá, mostra as linhas deles também com
-// um separador, em vez da tabela inteira.
+function Panel({ title, children }) {
+  return (
+    <section className="sp-panel">
+      <h3 className="sp-panel__title">{title}</h3>
+      {children}
+    </section>
+  );
+}
+
+function GamesPage({ lastResults, upcoming }) {
+  const panels = [
+    { title: '🏆 Últimos resultados', games: lastResults },
+    { title: '🗓️ Próximos jogos', games: upcoming },
+  ].filter((p) => p.games.length > 0);
+
+  return (
+    <div className={`sp-grid ${panels.length === 1 ? 'sp-grid--single' : ''}`}>
+      {panels.map((p) => (
+        <Panel key={p.title} title={p.title}>
+          <div className="sp-list sp-list--xl">
+            {p.games.map((g) => (
+              <Game key={g.id} game={g} />
+            ))}
+          </div>
+        </Panel>
+      ))}
+    </div>
+  );
+}
+
+// Topo da tabela e, se os times acompanhados ficarem de fora, as linhas deles
+// logo depois de um separador — em vez de listar a tabela inteira.
 function compactTable(table, trackedAbbrs) {
-  const top = table.slice(0, 6);
+  const top = table.slice(0, STANDINGS_TOP);
   const topAbbrs = new Set(top.map((r) => r.teamAbbr));
   const tracked = table.filter((r) => trackedAbbrs.includes(r.teamAbbr) && !topAbbrs.has(r.teamAbbr));
   return { top, tracked };
 }
 
 function StandingsRow({ row, tracked }) {
+  const sg = row.goalDiff > 0 ? `+${row.goalDiff}` : row.goalDiff;
   return (
-    <div className={`kiosk-standings-row ${tracked ? 'kiosk-standings-row--tracked' : ''}`}>
-      <span className="kiosk-standings-row__rank">{row.rank}º</span>
-      {row.teamLogo && <img className="kiosk-standings-row__logo" src={row.teamLogo} alt="" />}
-      <span className="kiosk-standings-row__team">{row.teamAbbr}</span>
-      <span className="kiosk-standings-row__stats">
-        {row.played}J · {row.wins}V {row.draws}E {row.losses}D · SG {row.goalDiff > 0 ? '+' : ''}
-        {row.goalDiff}
+    <div className={`sp-row ${tracked ? 'sp-row--tracked' : ''}`}>
+      <span className="sp-row__rank">{row.rank}º</span>
+      {row.teamLogo ? <img className="sp-row__logo" src={row.teamLogo} alt="" /> : <span className="sp-row__logo" />}
+      <span className="sp-row__team">{row.teamName || row.teamAbbr}</span>
+      <span className="sp-row__stats">
+        {row.played}J · {row.wins}V {row.draws}E {row.losses}D · SG {sg}
       </span>
-      <span className="kiosk-standings-row__points">{row.points}</span>
+      <span className="sp-row__points">{row.points}</span>
     </div>
   );
 }
 
-export default function KioskSportsSlide({ football }) {
-  const upcoming = football?.data?.upcoming || [];
-  const lastResults = football?.data?.lastResults || [];
-  const standings = football?.data?.standings || [];
-  const rounds = football?.data?.rounds || [];
-  const trackedAbbrs = football?.data?.trackedAbbrs || [];
-  const news = football?.data?.news || [];
-  const teamNews = football?.data?.teamNews || [];
+function StandingsPage({ standings: allStandings, trackedAbbrs }) {
+  const standings = allStandings.slice(0, 2);
+  return (
+    <div className={`sp-grid ${standings.length === 1 ? 'sp-grid--single' : ''}`}>
+      {standings.map((league) => {
+        const { top, tracked } = compactTable(league.table, trackedAbbrs);
+        return (
+          <Panel key={league.slug} title={`📊 ${league.name}`}>
+            <div className="sp-table">
+              {top.map((row) => (
+                <StandingsRow key={row.teamAbbr} row={row} tracked={trackedAbbrs.includes(row.teamAbbr)} />
+              ))}
+              {tracked.length > 0 && <div className="sp-table__divider">···</div>}
+              {tracked.map((row) => (
+                <StandingsRow key={row.teamAbbr} row={row} tracked />
+              ))}
+            </div>
+          </Panel>
+        );
+      })}
+    </div>
+  );
+}
 
-  const seen = new Set();
-  const nextPerTeam = upcoming.filter((g) => (seen.has(g.team) ? false : (seen.add(g.team), true)));
+// Até 5 jogos cabem numa coluna só; passando disso (rodada cheia do Brasileirão
+// = 10), vira 2 colunas e os cartões diminuem um pouco.
+const ROUND_SINGLE_COLUMN_MAX = 5;
 
-  const sportsNews = combineNews(teamNews, news, 6, 3).map(toSportsStory);
+function RoundPage({ rounds: allRounds }) {
+  // 2 painéis lado a lado no máximo, e cada um com o que cabe numa coluna.
+  const rounds = allRounds.slice(0, 2);
+  return (
+    <div className={`sp-grid ${rounds.length === 1 ? 'sp-grid--single sp-grid--wide' : ''}`}>
+      {rounds.map((league) => {
+        const wide = rounds.length === 1 && league.matches.length > ROUND_SINGLE_COLUMN_MAX;
+        const size = wide ? 'sm' : rounds.length === 1 ? 'lg' : 'md';
+        return (
+          <Panel key={league.slug} title={`🗓️ Rodada — ${league.name}`}>
+            <div className={`sp-list sp-list--${size} ${wide ? 'sp-list--two' : ''}`}>
+              {(rounds.length === 1 ? league.matches : league.matches.slice(0, ROUND_SINGLE_COLUMN_MAX)).map((g) => (
+                <Game key={g.id} game={g} showLeague={false} />
+              ))}
+            </div>
+          </Panel>
+        );
+      })}
+    </div>
+  );
+}
+
+export default function KioskSportsSlide({ football, page = 0, onSelectPage }) {
+  const pages = getSportsPages(football);
+  const current = pages.length > 0 ? pages[page % pages.length] : null;
+  const data = getSportsData(football);
+  const stories = data.news.map(toSportsStory);
+
+  const header = (
+    <div className="kiosk-slide__header sp-header">
+      <span>⚽ Esporte</span>
+      {pages.length > 1 && (
+        <div className="sp-tabs">
+          {pages.map((id, i) => (
+            <button
+              key={id}
+              type="button"
+              className={`sp-tab ${id === current ? 'sp-tab--active' : ''}`}
+              onClick={() => onSelectPage?.(i)}
+            >
+              {SPORTS_PAGE_LABELS[id]}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  // A página de notícias reaproveita o layout das notícias nacionais
+  // (2 destaques + 6 cards), que já tem todo o CSS de TV.
+  if (current === 'news') {
+    return (
+      <div key="news" className="kiosk-slide kiosk-slide--news">
+        {header}
+        <div className="kiosk-slide__body">
+          <FeaturedStoriesRow items={stories.slice(0, 2)} />
+          <TopStoriesRow items={stories.slice(2, 8)} pageSize={6} autoRotate={false} />
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="kiosk-slide kiosk-slide--sports">
-      <div className="kiosk-slide__header">⚽ Esporte</div>
-      <div className="kiosk-slide__body kiosk-sports-body">
-        <div className="kiosk-sports">
-          <div className="kiosk-sports__col">
-            {lastResults.length > 0 && (
-              <div className="kiosk-sports__group">
-                <div className="kiosk-sports__group-title">🏆 Últimos resultados</div>
-                <div className="kiosk-sports__rows">
-                  {lastResults.map((g) => (
-                    <ResultRow key={g.id} game={g} />
-                  ))}
-                </div>
-              </div>
-            )}
-            <div className="kiosk-sports__group">
-              <div className="kiosk-sports__group-title">Próximos jogos</div>
-              <div className="kiosk-sports__rows">
-                {nextPerTeam.map((g) => (
-                  <UpcomingRow key={g.id} game={g} />
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="kiosk-sports__col">
-            {standings.map((league) => {
-              const { top, tracked } = compactTable(league.table, trackedAbbrs);
-              return (
-                <div className="kiosk-sports__group" key={`standings-${league.slug}`}>
-                  <div className="kiosk-sports__group-title">📊 {league.name}</div>
-                  <div className="kiosk-standings">
-                    {top.map((row) => (
-                      <StandingsRow key={row.teamAbbr} row={row} tracked={trackedAbbrs.includes(row.teamAbbr)} />
-                    ))}
-                    {tracked.length > 0 && <div className="kiosk-standings__divider">···</div>}
-                    {tracked.map((row) => (
-                      <StandingsRow key={row.teamAbbr} row={row} tracked />
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="kiosk-sports__col kiosk-sports__col--round">
-            {rounds.map((league) => {
-              // O orçamento de linhas da coluna é dividido entre os campeonatos
-              // (um só = a rodada inteira, 10 jogos); cada grupo ocupa a altura
-              // proporcional aos jogos que mostra, e as linhas crescem pra preencher.
-              const shown = league.matches.slice(0, Math.max(3, Math.floor(ROUND_ROWS_BUDGET / rounds.length)));
-              return (
-                <div
-                  className="kiosk-sports__group kiosk-sports__group--grow"
-                  style={{ flexGrow: shown.length }}
-                  key={`round-${league.slug}`}
-                >
-                  <div className="kiosk-sports__group-title">🗓️ Rodada — {league.name}</div>
-                  <div className="kiosk-sports__rows">
-                    {shown.map((g) => (
-                      <div className="kiosk-game-row kiosk-game-row--compact" key={g.id}>
-                        <TeamSide abbr={g.homeAbbr} logo={g.homeLogo} />
-                        {g.completed ? (
-                          <span className="kiosk-game-row__score">
-                            {g.homeScore} × {g.awayScore}
-                          </span>
-                        ) : (
-                          <span className="kiosk-game-row__x">×</span>
-                        )}
-                        <TeamSide abbr={g.awayAbbr} logo={g.awayLogo} />
-                        <span className="kiosk-game-row__when">{formatWhen(g.date)}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {sportsNews.length > 0 && (
-          <div className="kiosk-sports__news">
-            <div className="kiosk-sports__group-title">📰 Notícias de Esporte</div>
-            <TopStoriesRow items={sportsNews} pageSize={6} autoRotate={false} />
-          </div>
-        )}
+    <div key={current || 'empty'} className="kiosk-slide kiosk-slide--sports">
+      {header}
+      <div className="kiosk-slide__body sp-body">
+        {current === 'games' && <GamesPage lastResults={data.lastResults} upcoming={data.upcoming} />}
+        {current === 'standings' && <StandingsPage standings={data.standings} trackedAbbrs={data.trackedAbbrs} />}
+        {current === 'round' && <RoundPage rounds={data.rounds} />}
+        {current === null && <p className="kiosk-slide__empty">Sem dados de esporte no momento.</p>}
       </div>
     </div>
   );

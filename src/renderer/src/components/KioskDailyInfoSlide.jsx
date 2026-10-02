@@ -155,8 +155,13 @@ function daysUntil(dateStr) {
   return `em ${diff} dias`;
 }
 
-function HistoryList({ title, icon, items }) {
-  if (!items?.length) return null;
+// Poucos itens e letra grande, pra ler de longe — o corte também vale pra
+// dados antigos em cache, de quando o serviço mandava mais.
+const HISTORY_ITEMS = 3;
+
+function HistoryList({ title, icon, items: allItems }) {
+  const items = (allItems || []).slice(0, HISTORY_ITEMS);
+  if (!items.length) return null;
   return (
     <section className="di-panel">
       <h3 className="di-panel__title">{icon} {title}</h3>

@@ -30,6 +30,7 @@ function defaults() {
       'footballWorld',
       'dailyInfo',
       'currency',
+      'agro',
       'calendar',
       // Só entra se a estação já tem um canal configurado — senão ninguém
       // quer uma tela vazia de "nenhum vídeo encontrado" no rodízio.
@@ -80,6 +81,16 @@ export function loadSettings() {
         merged.kioskEnabledSlides = next;
       }
       done.add('footballWorld');
+    }
+    // Mercado Agrícola: entra uma vez, logo depois de Cotações.
+    if (!done.has('agro') && Array.isArray(merged.kioskEnabledSlides)) {
+      if (!merged.kioskEnabledSlides.includes('agro')) {
+        const idx = merged.kioskEnabledSlides.indexOf('currency');
+        const next = [...merged.kioskEnabledSlides];
+        next.splice(idx >= 0 ? idx + 1 : next.length, 0, 'agro');
+        merged.kioskEnabledSlides = next;
+      }
+      done.add('agro');
     }
     merged.kioskSlidesMigrated = [...done];
     return merged;

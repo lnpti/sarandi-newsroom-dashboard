@@ -6,6 +6,9 @@ const { FOOTBALL_TEAMS } = stationConfig;
 const GAMES_PER_TEAM = 2;
 const STANDINGS_BASE = 'https://site.api.espn.com/apis/v2/sports/soccer';
 const SCOREBOARD_BASE = 'https://site.api.espn.com/apis/site/v2/sports/soccer';
+// lang/region fazem a ESPN devolver nomes de seleções e clubes em português
+// (Brazil → Brasil, Italy → Itália, Czechia → República Tcheca).
+const ESPN_PT = 'lang=pt&region=br';
 const NEWS_BASE = 'https://site.api.espn.com/apis/site/v2/sports/soccer';
 const NEWS_PER_LEAGUE_LIMIT = 6;
 // A ESPN não tem endpoint de notícias por time — busca um lote maior do feed
@@ -126,7 +129,7 @@ async function fetchScoreboardWindow(slug, daysBack, daysAhead) {
   end.setDate(end.getDate() + daysAhead);
 
   try {
-    return await fetchJson(`${SCOREBOARD_BASE}/${slug}/scoreboard?dates=${yyyymmdd(start)}-${yyyymmdd(end)}`);
+    return await fetchJson(`${SCOREBOARD_BASE}/${slug}/scoreboard?${ESPN_PT}&dates=${yyyymmdd(start)}-${yyyymmdd(end)}`);
   } catch {
     // cai pro dia a dia
   }
@@ -134,7 +137,7 @@ async function fetchScoreboardWindow(slug, daysBack, daysAhead) {
   const days = [];
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) days.push(yyyymmdd(d));
   const jsons = await Promise.all(
-    days.map((day) => fetchJson(`${SCOREBOARD_BASE}/${slug}/scoreboard?dates=${day}`).catch(() => null))
+    days.map((day) => fetchJson(`${SCOREBOARD_BASE}/${slug}/scoreboard?${ESPN_PT}&dates=${day}`).catch(() => null))
   );
   const seen = new Set();
   const events = [];
@@ -159,6 +162,14 @@ function scoreOf(competitor) {
   return Number.isNaN(n) ? null : n;
 }
 
+// Nome inteiro em português quando cabe no cartão; nomes compridos
+// ("República Democrática do Congo") usam a forma curta da ESPN ("Congo").
+const MAX_TEAM_NAME = 18;
+function teamLabel(team) {
+  const full = team.displayName || team.shortDisplayName || '';
+  return full.length <= MAX_TEAM_NAME ? full : team.shortDisplayName || full;
+}
+
 function mapScoreboardEvent(e, leagueName) {
   const comp = e.competitions?.[0];
   const home = comp?.competitors?.find((c) => c.homeAway === 'home');
@@ -170,11 +181,11 @@ function mapScoreboardEvent(e, leagueName) {
     date: e.date,
     league: leagueName || null,
     homeAbbr: home.team.abbreviation,
-    homeName: home.team.shortDisplayName || home.team.displayName,
+    homeName: teamLabel(home.team),
     homeLogo: home.team.logos?.[0]?.href || home.team.logo || null,
     homeScore: scoreOf(home),
     awayAbbr: away.team.abbreviation,
-    awayName: away.team.shortDisplayName || away.team.displayName,
+    awayName: teamLabel(away.team),
     awayLogo: away.team.logos?.[0]?.href || away.team.logo || null,
     awayScore: scoreOf(away),
     completed: !!comp.status?.type?.completed,
@@ -230,15 +241,15 @@ const NATIONAL_COMPETITIONS = [
   { slug: 'conmebol.america', label: 'Copa América' },
 ];
 const DAY_MS = 86400000;
-const NATIONAL_GAMES_LIMIT = 8;
-const OTHER_GAMES_LIMIT = 14;
+const NATIONAL_GAMES_LIMIT = 7;
+const OTHER_GAMES_LIMIT = 7;
 // Dias à frente: seleções 7; campeonatos de clubes 14, porque numa pausa de data
 // FIFA a próxima rodada das ligas europeias fica a mais de uma semana.
 const NATIONAL_AHEAD_DAYS = 7;
 const OTHER_AHEAD_DAYS = 14;
 // No máximo N jogos por competição por rodada de sorteio, pra Libertadores,
 // Champions e as ligas dividirem a tela em vez de uma só ocupar tudo.
-const OTHER_PER_COMPETITION = 3;
+const OTHER_PER_COMPETITION = 2;
 // Siglas ESPN de seleções que o público reconhece — só pra ordenação.
 const FAMOUS_ABBRS = new Set([
   'ARG', 'URU', 'COL', 'CHI', 'PAR', 'ECU', 'PER', 'FRA', 'ESP', 'ENG', 'GER', 'POR', 'ITA', 'NED',
@@ -247,7 +258,7 @@ const FAMOUS_ABBRS = new Set([
 
 async function fetchCompetitionEvents({ slug, label }, minTs, maxTs) {
   try {
-    const json = await fetchJson(`${SCOREBOARD_BASE}/${slug}/scoreboard`);
+    const json = await fetchJson(`${SCOREBOARD_BASE}/${slug}/scoreboard?${ESPN_PT}`);
     return (json.events || [])
       .filter((e) => {
         const t = new Date(e.date).getTime();

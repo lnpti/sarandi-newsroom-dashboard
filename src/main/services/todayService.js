@@ -3,8 +3,8 @@
 const BASE = 'https://pt.wikipedia.org/api/rest_v1/feed/onthisday/all';
 const HEADERS = { 'User-Agent': 'PlayNews/1.0 (radio newsroom dashboard)' };
 
-const EVENTS_SHOWN = 4;
-const BIRTHS_SHOWN = 4;
+const EVENTS_SHOWN = 3;
+const BIRTHS_SHOWN = 3;
 const COMMEMORATIVE_SHOWN = 5;
 const TEXT_MAX = 140;
 

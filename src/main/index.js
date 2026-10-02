@@ -17,6 +17,7 @@ import { fetchRegionalNews } from './services/regionalNewsService.js';
 import { fetchWeather } from './services/weatherService.js';
 import { fetchWeatherAlerts } from './services/weatherAlertsService.js';
 import { fetchCurrency } from './services/currencyService.js';
+import { fetchAgro } from './services/agroService.js';
 import { fetchFootball } from './services/footballService.js';
 import { fetchHolidays } from './services/holidaysService.js';
 import { fetchLottery } from './services/lotteryService.js';
@@ -177,6 +178,14 @@ function startPollers(store, settings, getSettings) {
     onResult: (key, patch) => store.update(key, patch),
   });
   pollers.currency.start();
+
+  pollers.agro = createPoller({
+    key: 'agro',
+    intervalMs: settings.agro,
+    fetchFn: () => fetchAgro(store.getSnapshot().agro.data),
+    onResult: (key, patch) => store.update(key, patch),
+  });
+  pollers.agro.start();
 
   pollers.football = createPoller({
     key: 'football',

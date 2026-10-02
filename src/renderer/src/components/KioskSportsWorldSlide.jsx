@@ -1,19 +1,4 @@
-function dayLabel(dateStr) {
-  const d = new Date(dateStr);
-  const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
-  if (d.toDateString() === today.toDateString()) return 'Hoje';
-  if (d.toDateString() === tomorrow.toDateString()) return 'Amanhã';
-  if (d.toDateString() === yesterday.toDateString()) return 'Ontem';
-  return d.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' });
-}
-
-function timeLabel(dateStr) {
-  return new Date(dateStr).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-}
+import { dayLabel, timeLabel } from '../sportsFormat.js';
 
 function Side({ name, abbr, logo, align }) {
   return (
@@ -63,8 +48,11 @@ function GameCard({ game }) {
 // Mais de 8 jogos não cabem em fila única na altura da TV — vira 2 colunas.
 const SINGLE_COLUMN_MAX = 8;
 
-function Panel({ title, icon, games, emptyText, wide }) {
-  const twoCols = wide || games.length > SINGLE_COLUMN_MAX;
+// Jogos por painel — poucos e grandes, pra ler de longe na TV.
+const GAMES_PER_PANEL = 7;
+
+function Panel({ title, icon, games, emptyText }) {
+  const twoCols = games.length > SINGLE_COLUMN_MAX;
   return (
     <section className="sw-panel">
       <h3 className="sw-panel__title">
@@ -87,10 +75,12 @@ export default function KioskSportsWorldSlide({ football }) {
   // Seleções: encerrados primeiro, depois os demais — cada grupo por data e hora.
   // (O serviço escolhe os jogos por prioridade — Brasil primeiro; a ordem de
   // exibição é decidida aqui.)
-  const national = [...(football?.data?.nationalGames || [])].sort(
+  const national = (football?.data?.nationalGames || []).slice(0, GAMES_PER_PANEL).sort(
     (a, b) => Number(!!b.completed) - Number(!!a.completed) || new Date(a.date) - new Date(b.date)
   );
-  const others = football?.data?.otherGames || [];
+  // Poucos jogos por painel (cartões maiores na TV) — o corte também vale pra dados
+  // antigos em cache, de quando o serviço mandava mais.
+  const others = (football?.data?.otherGames || []).slice(0, GAMES_PER_PANEL);
 
   // Sem jogo de seleção (ou sem jogo de outros campeonatos), o painel que tem
   // dados ocupa a tela inteira em 2 colunas, em vez de deixar metade vazia.
@@ -109,7 +99,6 @@ export default function KioskSportsWorldSlide({ football }) {
             icon="🏳️"
             games={national}
             emptyText="Nenhum jogo de seleções nos próximos dias."
-            wide={onlyNational}
           />
         )}
         {!onlyNational && (
@@ -118,7 +107,6 @@ export default function KioskSportsWorldSlide({ football }) {
             icon="🏆"
             games={others}
             emptyText="Nenhum jogo de outros campeonatos nos próximos dias."
-            wide={onlyOthers}
           />
         )}
       </div>

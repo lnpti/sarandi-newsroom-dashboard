@@ -1,9 +1,28 @@
 import { useEffect, useState } from 'react';
-import { dayKey, dayLabel, formatTime, groupByDay } from '../calendarUtils.js';
+import { dateFromKey, dayKey, dayLabel, formatTime, groupByDay } from '../calendarUtils.js';
 
-// Quantos flashs mostrar além do destaque — é uma TV sem ninguém pra rolar.
-const EVENT_LIMIT = 12;
-const MAX_DAY_COLUMNS = 4;
+// Os próximos 8 dias de segunda a sábado (domingo não entra) viram cartões em
+// grade 4×2 até preencher a tela; dia sem flash aparece vazio, pra agenda ficar
+// visível de relance. 8 dias sem domingo cabem sempre dentro da janela de busca
+// (WINDOW_DAYS em calendarService.js). É uma TV sem ninguém pra rolar, então cada
+// cartão mostra no máximo alguns flashs e avisa quantos ficaram de fora.
+const DAYS_SHOWN = 8;
+const DAY_COLUMNS = 4;
+const EVENTS_PER_DAY = 2;
+const SUNDAY = 0;
+
+const isSunday = (key) => dateFromKey(key).getDay() === SUNDAY;
+
+function dayKeys(now, count) {
+  const p = (n) => String(n).padStart(2, '0');
+  const keys = [];
+  for (let i = 0; keys.length < count; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
+    if (d.getDay() === SUNDAY) continue;
+    keys.push(`${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`);
+  }
+  return keys;
+}
 
 // Re-renderiza de tempos em tempos pra a contagem regressiva e o corte dos
 // flashs que já passaram não dependerem do próximo ciclo de busca (15 min).
@@ -52,11 +71,14 @@ function Hero({ ev, now }) {
 }
 
 function DayCard({ group }) {
+  const shown = group.events.slice(0, EVENTS_PER_DAY);
+  const hidden = group.events.length - shown.length;
   return (
-    <section className="fl-day">
+    <section className={`fl-day ${group.events.length === 0 ? 'fl-day--empty' : ''}`}>
       <h3 className="fl-day__label">{dayLabel(group.key, { long: true })}</h3>
       <div className="fl-day__events">
-        {group.events.map((ev) => (
+        {group.events.length === 0 && <span className="fl-day__none">Sem flashs</span>}
+        {shown.map((ev) => (
           <div className="fl-event" key={ev.id}>
             <span className="fl-event__time">{ev.allDay ? 'Dia todo' : formatTime(ev.start)}</span>
             <div className="fl-event__main">
@@ -65,6 +87,7 @@ function DayCard({ group }) {
             </div>
           </div>
         ))}
+        {hidden > 0 && <span className="fl-day__more">+{hidden} {hidden === 1 ? 'flash' : 'flashs'}</span>}
       </div>
     </section>
   );
@@ -73,9 +96,11 @@ function DayCard({ group }) {
 export default function KioskCalendarSlide({ calendar }) {
   const now = useNow(30000);
   // O dado só é recalculado a cada 15 min — corta aqui o que já acabou.
-  const events = (calendar?.data || []).filter((ev) => new Date(ev.end) > now);
+  // Flash de domingo não aparece (nem no destaque) — a tela é de segunda a sábado.
+  const events = (calendar?.data || []).filter((ev) => new Date(ev.end) > now && !isSunday(dayKey(ev)));
   const next = events[0];
-  const groups = groupByDay(events.slice(1, 1 + EVENT_LIMIT));
+  const byDay = new Map(groupByDay(events).map((g) => [g.key, g]));
+  const groups = dayKeys(now, DAYS_SHOWN).map((key) => byDay.get(key) || { key, events: [] });
 
   return (
     <div className="kiosk-slide kiosk-slide--calendar">
@@ -88,7 +113,7 @@ export default function KioskCalendarSlide({ calendar }) {
           {groups.length > 0 && (
             <div
               className="fl-days"
-              style={{ '--fl-cols': Math.min(groups.length, MAX_DAY_COLUMNS) }}
+              style={{ '--fl-cols': DAY_COLUMNS }}
             >
               {groups.map((group) => (
                 <DayCard key={group.key} group={group} />

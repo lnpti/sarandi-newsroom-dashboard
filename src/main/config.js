@@ -34,6 +34,12 @@ export const FINANCIAL_NEWS_SOURCE = {
   primaryUrl: 'https://www.infomoney.com.br/feed/',
 };
 
+// Notícias do campo (Canal Rural, RSS com imagem) pro slide de Mercado Agrícola.
+export const AGRO_NEWS_SOURCES = [
+  { key: 'canalrural-agri', label: 'Canal Rural', primaryUrl: 'https://www.canalrural.com.br/agricultura/feed/' },
+  { key: 'canalrural-pec', label: 'Canal Rural', primaryUrl: 'https://www.canalrural.com.br/pecuaria/feed/' },
+];
+
 // API pública da ESPN (sem chave). fixture=true traz só jogos futuros.
 // Slug "all" cobre TODAS as competições (Brasileirão, Copa do Brasil,
 // Libertadores/Sul-Americana) — bra.1 sozinho escondia jogos de outras
@@ -70,6 +76,7 @@ export const DEFAULT_POLL_INTERVALS_MS = {
   weather: 15 * 60 * 1000,
   weatherAlerts: 15 * 60 * 1000,
   currency: 10 * 60 * 1000,
+  agro: 30 * 60 * 1000,
   football: 60 * 60 * 1000,
   holidays: 12 * 60 * 60 * 1000,
   lottery: 60 * 60 * 1000,

@@ -2,8 +2,13 @@ import { dayLabel, formatTime, groupByDay } from '../calendarUtils.js';
 
 // Coluna própria (não um painel dentro da coluna de widgets) — some por
 // completo quando não há nenhum compromisso, em vez de reservar espaço vazio.
+// O dado cobre mais dias (o Modo TV precisa de 8 dias úteis), mas o painel
+// normal sempre mostrou só os próximos 8 dias corridos.
+const PANEL_DAYS = 8;
+
 export default function CalendarPanel({ calendar }) {
-  const events = calendar?.data;
+  const cutoff = Date.now() + PANEL_DAYS * 24 * 60 * 60 * 1000;
+  const events = calendar?.data?.filter((ev) => new Date(ev.start) < cutoff);
   if (!events || events.length === 0) return null;
 
   return (

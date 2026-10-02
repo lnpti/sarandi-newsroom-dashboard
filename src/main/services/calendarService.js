@@ -1,8 +1,11 @@
 import ical from 'node-ical';
 
-const WINDOW_DAYS = 8;
+// 11 dias: o Modo TV mostra os próximos 8 dias de segunda a sábado, e pulando os
+// domingos isso alcança até o 10º dia à frente. O painel normal só usa os 8
+// primeiros (ver CalendarPanel).
+const WINDOW_DAYS = 11;
 
-// A partir de agora (não da meia-noite de hoje) até 8 dias à frente — assim
+// A partir de agora (não da meia-noite de hoje) até 11 dias à frente — assim
 // um flash de hoje de manhã some da lista sozinho depois que o horário passa,
 // em vez de continuar aparecendo o dia inteiro.
 function windowBounds() {

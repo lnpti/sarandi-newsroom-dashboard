@@ -21,7 +21,7 @@ const FREQUENCY_GROUPS = [
   { title: 'Rádio', keys: ['listeners', 'radioNews'] },
   { title: 'Notícias', keys: ['externalNews', 'regionalNews'] },
   { title: 'Clima', keys: ['weather', 'weatherAlerts'] },
-  { title: 'Outros', keys: ['currency', 'football', 'holidays', 'lottery', 'saint', 'calendar', 'youtube'] },
+  { title: 'Outros', keys: ['currency', 'agro', 'football', 'holidays', 'lottery', 'saint', 'calendar', 'youtube'] },
 ];
 
 export default function SettingsPanel({ kiosk, onUpdateKiosk, onClose }) {
@@ -347,7 +347,7 @@ export default function SettingsPanel({ kiosk, onUpdateKiosk, onClose }) {
             <div className="settings-rss">
               <p className="settings-rss__hint">
                 Link ICS do calendário do Outlook. No Outlook na Web: Configurações ⚙ → Calendário →
-                Calendários compartilhados → Publicação de calendário. Mostra os eventos dos próximos 8 dias.
+                Calendários compartilhados → Publicação de calendário. Mostra os eventos dos próximos 8 dias (no Modo TV, os próximos 8 dias de segunda a sábado).
               </p>
               {!settings.calendarIcsUrl && (
                 <p className="settings-rss__empty">Nenhum calendário cadastrado.</p>

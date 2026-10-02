@@ -4025,3 +4025,843 @@ a {
 .kiosk-sports__col--round .kiosk-game-row--compact .kiosk-game-row__when {
   font-size: 14px;
 }
+
+/* ── Esporte (Modo TV) em páginas ────────────────────────────────────────────
+   Uma coisa por vez, grande (Jogos / Classificação / Rodada / Notícias), com o
+   rodízio dentro do próprio slide. A página de notícias usa .kiosk-slide--news. */
+.sp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.sp-tabs {
+  display: flex;
+  gap: 10px;
+}
+
+.sp-tab {
+  font-size: 17px;
+  font-weight: 700;
+  padding: 7px 18px;
+  border-radius: 999px;
+  color: var(--muted);
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  transition: color 0.2s, background 0.2s, border-color 0.2s;
+}
+
+.sp-tab--active {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.sp-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.sp-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  min-height: 0;
+}
+
+.sp-grid--single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* Tabela/jogos de um painel só: não esticar até as bordas da TV */
+.sp-grid--single:not(.sp-grid--wide) {
+  grid-template-columns: minmax(0, 1300px);
+  justify-content: center;
+}
+
+.sp-panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 22px;
+  padding: 22px 28px 26px;
+}
+
+.sp-panel__title {
+  margin: 0 0 16px;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Lista de jogos: cada linha cresce até o teto do tamanho (lg/md/sm) e,
+   se não couber, todas encolhem por igual — nada rola. */
+.sp-list {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-auto-rows: minmax(0, 200px);
+  align-content: center;
+  gap: 14px;
+  overflow: hidden;
+}
+
+.sp-list--lg { grid-auto-rows: minmax(0, 210px); }
+.sp-list--md { grid-auto-rows: minmax(0, 150px); }
+.sp-list--sm { grid-auto-rows: minmax(0, 130px); }
+
+.sp-list--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 18px;
+}
+
+.sp-game {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  min-height: 0;
+  overflow: hidden;
+  padding: 12px 28px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--card-border);
+  border-radius: 18px;
+}
+
+.sp-game__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.sp-game__league {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 800;
+}
+
+.sp-game__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 18px;
+}
+
+.sp-side {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.sp-side--away {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+.sp-side__logo {
+  width: 68px;
+  height: 68px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.sp-side__logo--empty {
+  border-radius: 50%;
+  background: var(--card-border);
+}
+
+.sp-side__name {
+  font-size: 32px;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sp-game__center {
+  min-width: 120px;
+  text-align: center;
+}
+
+.sp-game__score {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 60px;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.sp-game__score-x {
+  font-size: 28px;
+  color: var(--muted);
+}
+
+.sp-game__time {
+  display: inline-block;
+  padding: 6px 22px;
+  border-radius: 999px;
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--accent);
+  background: var(--accent-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Rodada em vários campeonatos (1 coluna por painel) */
+.sp-list--md .sp-side__logo { width: 52px; height: 52px; }
+.sp-list--md .sp-side__name { font-size: 26px; }
+.sp-list--md .sp-game__score { font-size: 46px; }
+.sp-list--md .sp-game__time { font-size: 28px; }
+.sp-list--md .sp-game__center { min-width: 100px; }
+
+/* Rodada cheia (2 colunas) */
+.sp-list--sm .sp-game { padding: 8px 20px; gap: 6px; }
+.sp-list--sm .sp-game__meta { font-size: 15px; }
+.sp-list--sm .sp-side { gap: 12px; }
+.sp-list--sm .sp-side__logo { width: 46px; height: 46px; }
+.sp-list--sm .sp-side__name { font-size: 24px; }
+.sp-list--sm .sp-game__score { font-size: 40px; gap: 10px; }
+.sp-list--sm .sp-game__score-x { font-size: 20px; }
+.sp-list--sm .sp-game__time { font-size: 26px; padding: 4px 16px; }
+.sp-list--sm .sp-game__center { min-width: 96px; }
+
+/* Classificação */
+.sp-table {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+.sp-row {
+  flex: 0 1 66px;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 54px 46px minmax(0, 1fr) auto 76px;
+  align-items: center;
+  gap: 14px;
+  padding: 0 22px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  font-size: 25px;
+}
+
+.sp-row--tracked {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.sp-row__rank {
+  font-weight: 800;
+  color: var(--muted);
+  text-align: center;
+}
+
+.sp-row--tracked .sp-row__rank {
+  color: var(--accent);
+}
+
+.sp-row__logo {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.sp-row__team {
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sp-row__stats {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.sp-row__points {
+  font-size: 32px;
+  font-weight: 800;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.sp-table__divider {
+  flex: 0 0 auto;
+  text-align: center;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--muted);
+}
+
+/* Página "Jogos": poucos jogos por painel, então os cartões ficam bem grandes */
+.sp-list--xl { grid-auto-rows: minmax(0, 270px); gap: 20px; }
+.sp-list--xl .sp-game { padding: 16px 32px; gap: 14px; }
+.sp-list--xl .sp-game__meta { font-size: 20px; }
+.sp-list--xl .sp-side { gap: 20px; }
+.sp-list--xl .sp-side__logo { width: 84px; height: 84px; }
+.sp-list--xl .sp-side__name { font-size: 36px; }
+.sp-list--xl .sp-game__score { font-size: 76px; gap: 16px; }
+.sp-list--xl .sp-game__score-x { font-size: 32px; }
+.sp-list--xl .sp-game__time { font-size: 42px; padding: 8px 26px; }
+.sp-list--xl .sp-game__center { min-width: 150px; }
+
+/* "Jogos": escudo em cima do nome, centralizado — nomes longos
+   (Internacional, Atlético-MG) não cabem ao lado do escudo grande. */
+.sp-list--xl .sp-side,
+.sp-list--xl .sp-side--away {
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.sp-list--xl .sp-side__logo { width: 88px; height: 88px; }
+.sp-list--xl .sp-side__name { max-width: 100%; font-size: 32px; }
+
+/* Abas do Esporte agora são botões (clicáveis) */
+.sp-tab {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.sp-tab:hover:not(.sp-tab--active) {
+  color: var(--text);
+  border-color: var(--muted);
+}
+
+/* Esporte: seleções e outros campeonatos — poucos jogos, conteúdo bem maior */
+.sw-panel {
+  padding: 22px 28px 26px;
+}
+
+.sw-panel__title {
+  font-size: 19px;
+  margin-bottom: 16px;
+}
+
+.sw-panel__list {
+  grid-auto-rows: minmax(0, 150px);
+  gap: 14px;
+}
+
+.sw-game {
+  padding: 12px 24px;
+  gap: 8px;
+  border-radius: 16px;
+}
+
+.sw-game__meta {
+  font-size: 17px;
+}
+
+.sw-game__row {
+  gap: 18px;
+}
+
+.sw-side {
+  gap: 16px;
+}
+
+.sw-side__logo {
+  width: 60px;
+  height: 60px;
+}
+
+.sw-side__name {
+  font-size: 27px;
+}
+
+.sw-game__center {
+  min-width: 124px;
+}
+
+.sw-game__score {
+  font-size: 48px;
+  gap: 12px;
+}
+
+.sw-game__score-x {
+  font-size: 24px;
+}
+
+.sw-game__time {
+  font-size: 32px;
+  padding: 5px 20px;
+}
+
+/* Painel único (2 colunas) — meia largura por cartão, então um pouco menor */
+.sw-panel__list--wide {
+  grid-auto-rows: minmax(0, 190px);
+  column-gap: 18px;
+}
+
+.sw-panel__list--wide .sw-side__logo {
+  width: 54px;
+  height: 54px;
+}
+
+.sw-panel__list--wide .sw-side__name {
+  font-size: 24px;
+}
+
+.sw-panel__list--wide .sw-game__center {
+  min-width: 108px;
+}
+
+.sw-panel__list--wide .sw-game__score {
+  font-size: 42px;
+}
+
+.sw-panel__list--wide .sw-game__time {
+  font-size: 28px;
+  padding: 4px 16px;
+}
+
+/* 5 jogos por painel: cada cartão ganha altura, então o conteúdo cresce mais */
+.sw-panel__list {
+  grid-auto-rows: minmax(0, 170px);
+}
+
+.sw-game {
+  padding: 14px 26px;
+}
+
+.sw-game__meta {
+  font-size: 18px;
+}
+
+.sw-side__logo {
+  width: 70px;
+  height: 70px;
+}
+
+.sw-side__name {
+  font-size: 31px;
+}
+
+.sw-game__center {
+  min-width: 136px;
+}
+
+.sw-game__score {
+  font-size: 54px;
+}
+
+.sw-game__time {
+  font-size: 36px;
+  padding: 6px 22px;
+}
+
+/* Painel único (2 colunas, 3 linhas): meia largura mas bem mais alto */
+.sw-panel__list--wide {
+  grid-auto-rows: minmax(0, 220px);
+}
+
+.sw-panel__list--wide .sw-side__logo {
+  width: 64px;
+  height: 64px;
+}
+
+.sw-panel__list--wide .sw-side__name {
+  font-size: 28px;
+}
+
+.sw-panel__list--wide .sw-game__score {
+  font-size: 48px;
+}
+
+.sw-panel__list--wide .sw-game__time {
+  font-size: 32px;
+}
+
+/* Só um painel com dados: uma coluna larga e centralizada em vez de esticar
+   os cartões até as bordas da TV */
+.sw--single .sw-panel {
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+/* 7 jogos por painel: meio-termo entre quantidade e tamanho de leitura */
+.sw-panel__list {
+  grid-auto-rows: minmax(0, 120px);
+  gap: 10px;
+}
+
+.sw-game {
+  padding: 8px 22px;
+  gap: 4px;
+}
+
+.sw-game__meta {
+  font-size: 15px;
+}
+
+.sw-side__logo {
+  width: 50px;
+  height: 50px;
+}
+
+.sw-side__name {
+  font-size: 27px;
+}
+
+.sw-game__center {
+  min-width: 118px;
+}
+
+.sw-game__score {
+  font-size: 44px;
+}
+
+.sw-game__time {
+  font-size: 30px;
+  padding: 3px 18px;
+}
+
+/* Painel do dia — "Hoje na história" / "Nasceram hoje" com letra bem maior:
+   coluna do meio mais larga, 3 itens por lista e até 3 linhas de texto */
+.di-cols {
+  grid-template-columns: 1.2fr 1.45fr 0.9fr;
+}
+
+.di-cols--two {
+  grid-template-columns: 1.4fr 1fr;
+}
+
+.di-ball {
+  width: 42px;
+  height: 42px;
+  font-size: 18px;
+}
+
+.di-history {
+  justify-content: space-around;
+  gap: 10px;
+}
+
+.di-history__item {
+  flex: 1 1 0;
+  align-items: center;
+  gap: 16px;
+  min-height: 0;
+}
+
+.di-history__year {
+  min-width: 92px;
+  padding: 6px 0;
+  font-size: 22px;
+  border-radius: 10px;
+}
+
+.di-history__text {
+  font-size: 23px;
+  line-height: 1.28;
+  -webkit-line-clamp: 3;
+}
+
+.di-panel__title {
+  font-size: 16px;
+}
+
+/* Loterias numa coluna um pouco mais estreita: nome não quebra, concurso desce */
+.di-cols {
+  grid-template-columns: 1.35fr 1.4fr 0.85fr;
+}
+
+.di-lot__head {
+  flex-wrap: wrap;
+  row-gap: 0;
+}
+
+.di-lot__label {
+  white-space: nowrap;
+  font-size: 24px;
+}
+
+/* Ajuste final de proporção: texto da história precisa de mais largura */
+.di-cols {
+  grid-template-columns: 1.2fr 1.65fr 0.85fr;
+}
+
+.di-history__text {
+  font-size: 22px;
+}
+
+/* ── Mercado Agrícola (Modo TV) — cotações do RS ─────────────────────────── */
+.ag-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.ag-header__meta {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.ag-fx {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ag-fx strong {
+  color: var(--text);
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ag {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+}
+
+.ag-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+  gap: 16px;
+  min-height: 0;
+}
+
+.ag-grid--few {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ag-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 6px;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  padding: 14px 22px 14px;
+  border-radius: 20px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+}
+
+.ag-card__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ag-card__icon {
+  font-size: 34px;
+  line-height: 1;
+}
+
+.ag-card__title {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ag-card__name {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.ag-card__source {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ag-card__price {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.ag-card__value {
+  font-size: 46px;
+  font-weight: 800;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+
+.ag-card__unit {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.ag-card__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--card-border);
+}
+
+.ag-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  font-size: 17px;
+  min-height: 28px;
+}
+
+.ag-row__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.ag-row__value {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.ag-row__unit {
+  margin-left: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.ag-row--ref .ag-row__label {
+  color: var(--accent);
+}
+
+.market-pill--flat {
+  color: var(--muted);
+  background: var(--bg-elevated);
+}
+
+.ag-news {
+  flex: 0 0 auto;
+}
+
+.ag-news .market-panel__title {
+  margin-bottom: 8px;
+}
+
+.ag-news .top-stories-row {
+  margin-bottom: 0;
+}
+
+.ag-news .top-story {
+  height: 150px;
+}
+
+.ag-news .top-story__title {
+  font-size: calc(15px * var(--news-font-scale));
+  -webkit-line-clamp: 3;
+}
+
+.ag-foot {
+  flex: 0 0 auto;
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* Mercado Agrícola — letra maior pra ler de longe */
+.ag-card__name { font-size: 27px; }
+.ag-card__source { font-size: 16px; }
+.ag-card__value { font-size: 52px; }
+.ag-card__unit { font-size: 20px; }
+.ag-row { font-size: 20px; min-height: 30px; }
+.ag-row__unit { font-size: 15px; }
+.ag-card .market-pill { font-size: 17px; }
+.ag-card .market-pill--big { font-size: 22px; }
+.ag-header__meta { font-size: 19px; }
+.ag-fx strong { font-size: 24px; }
+.ag-foot { font-size: 15px; }
+
+/* Flashs: todos os dias da janela em grade (dia vazio fica discreto) */
+.fl-day--empty {
+  background: transparent;
+  border-style: dashed;
+}
+
+.fl-day--empty .fl-day__label {
+  color: var(--muted);
+}
+
+.fl-day__none {
+  font-size: 20px;
+  color: var(--muted);
+}
+
+.fl-day__more {
+  padding-left: 4px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.fl-day__label {
+  margin-bottom: 10px;
+  font-size: 19px;
+}
+
+.fl-day__events {
+  gap: 8px;
+}
+
+.fl-day .fl-event {
+  padding: 8px 12px;
+  gap: 12px;
+}
+
+.fl-day .fl-event__title {
+  font-size: 22px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.fl-day .fl-event__location {
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

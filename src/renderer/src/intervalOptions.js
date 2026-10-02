@@ -6,6 +6,7 @@ export const SETTINGS_LABELS = {
   weather: 'Previsão do tempo',
   weatherAlerts: 'Alertas de clima severo',
   currency: 'Cotações (dólar/euro)',
+  agro: 'Mercado agrícola',
   football: 'Jogos (Grêmio/Inter)',
   holidays: 'Próximos feriados',
   lottery: 'Loterias',
@@ -83,6 +84,12 @@ export const INTERVAL_OPTIONS = {
     { label: '6 horas', ms: 6 * 60 * 60 * 1000 },
     { label: '12 horas', ms: 12 * 60 * 60 * 1000 },
     { label: '24 horas', ms: 24 * 60 * 60 * 1000 },
+  ],
+  agro: [
+    { label: '15 minutos', ms: 15 * 60 * 1000 },
+    { label: '30 minutos', ms: 30 * 60 * 1000 },
+    { label: '1 hora', ms: 60 * 60 * 1000 },
+    { label: '2 horas', ms: 2 * 60 * 60 * 1000 },
   ],
   calendar: [
     { label: '5 minutos', ms: 5 * 60 * 1000 },
