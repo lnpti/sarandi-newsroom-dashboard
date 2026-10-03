@@ -63,6 +63,7 @@ export default function App() {
         listenerHistory={snapshot.listenerHistory}
         weather={snapshot.weather}
         currency={snapshot.currency}
+        liveScores={snapshot.liveScores}
         kiosk={kiosk}
         onUpdateKiosk={updateKiosk}
       />

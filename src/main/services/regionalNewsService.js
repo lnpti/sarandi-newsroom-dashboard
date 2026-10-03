@@ -133,10 +133,24 @@ async function attachImages(items) {
   );
 }
 
+// O alerta não filtra por data. Fica com o que está na janela recente — mas a
+// tela do Modo TV precisa de cartões o bastante pra preencher, então, se a
+// janela normal não juntar o suficiente (semana fraca de notícias, ou muitos
+// domínios bloqueados), ela cresce em etapas até completar.
+const WINDOW_STEPS_DAYS = [REGIONAL_NEWS_WINDOW_DAYS, 60, 120, 365];
+
+function withinWindow(items) {
+  let picked = [];
+  for (const days of WINDOW_STEPS_DAYS) {
+    const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+    picked = items.filter((item) => new Date(item.isoDate).getTime() >= cutoff);
+    if (picked.length >= REGIONAL_ITEM_LIMIT) break;
+  }
+  return picked;
+}
+
 export async function fetchRegionalNews(urls, blockedDomains) {
   const feedUrls = Array.isArray(urls) && urls.length > 0 ? urls : DEFAULT_REGIONAL_RSS_URLS;
-  const cutoff = Date.now() - REGIONAL_NEWS_WINDOW_DAYS * 24 * 60 * 60 * 1000;
-
   const results = await Promise.allSettled(feedUrls.map((url) => parser.parseURL(url)));
 
   // Se todos os feeds falharem (ex.: link do Alertas inválido), propaga erro
@@ -159,8 +173,7 @@ export async function fetchRegionalNews(urls, blockedDomains) {
       if (isBlockedLink(link) || isUserBlockedLink(link, blockedDomains)) continue;
 
       const isoDate = item.isoDate || item.pubDate || null;
-      // O alerta não filtra por data — descarta o que estiver fora da janela recente.
-      if (!isoDate || new Date(isoDate).getTime() < cutoff) continue;
+      if (!isoDate) continue;
 
       seen.add(title);
       items.push({ id: item.id || item.guid || link || title, title, source, link, isoDate });
@@ -169,5 +182,5 @@ export async function fetchRegionalNews(urls, blockedDomains) {
 
   items.sort((a, b) => new Date(b.isoDate) - new Date(a.isoDate));
 
-  return attachImages(items.slice(0, REGIONAL_ITEM_LIMIT));
+  return attachImages(withinWindow(items).slice(0, REGIONAL_ITEM_LIMIT));
 }

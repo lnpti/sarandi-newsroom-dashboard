@@ -18,6 +18,7 @@ import { fetchWeather } from './services/weatherService.js';
 import { fetchWeatherAlerts } from './services/weatherAlertsService.js';
 import { fetchCurrency } from './services/currencyService.js';
 import { fetchAgro } from './services/agroService.js';
+import { fetchLiveScores } from './services/liveScoreService.js';
 import { fetchFootball } from './services/footballService.js';
 import { fetchHolidays } from './services/holidaysService.js';
 import { fetchLottery } from './services/lotteryService.js';
@@ -186,6 +187,16 @@ function startPollers(store, settings, getSettings) {
     onResult: (key, patch) => store.update(key, patch),
   });
   pollers.agro.start();
+
+  // Placar ao vivo na barra inferior: busca a cada minuto (a tela só mostra algo
+  // quando há jogo em andamento do Brasil/Grêmio/Inter).
+  pollers.liveScores = createPoller({
+    key: 'liveScores',
+    intervalMs: settings.liveScores,
+    fetchFn: fetchLiveScores,
+    onResult: (key, patch) => store.update(key, patch),
+  });
+  pollers.liveScores.start();
 
   pollers.football = createPoller({
     key: 'football',

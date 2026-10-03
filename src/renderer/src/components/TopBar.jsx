@@ -8,12 +8,13 @@ import WeatherWidget from './WeatherWidget.jsx';
 import CurrencyWidget from './CurrencyWidget.jsx';
 import SettingsPanel from './SettingsPanel.jsx';
 import FontSizeControl from './FontSizeControl.jsx';
+import LiveScoreTicker from './LiveScoreTicker.jsx';
 import logoDark from '@station-assets/logo-dark.png';
 import logoLight from '@station-assets/logo-light.png';
 import { RADIO_NAME } from '@station-assets/info.js';
 import appIcon from '../assets/app-icon.png';
 
-export default function TopBar({ listeners, listenerHistory, weather, currency, kiosk, onUpdateKiosk }) {
+export default function TopBar({ listeners, listenerHistory, weather, currency, liveScores, kiosk, onUpdateKiosk }) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [version, setVersion] = useState('');
 
@@ -31,6 +32,7 @@ export default function TopBar({ listeners, listenerHistory, weather, currency, 
       <WeatherWidget weather={weather} />
       {!kiosk?.kioskModeOn && <CurrencyWidget currency={currency} />}
       <div className="top-bar__spacer" />
+      <LiveScoreTicker liveScores={liveScores} />
       <Clock />
       <div className="top-bar__meta">
         <StatusBadge status={listeners.status} />

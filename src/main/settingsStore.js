@@ -44,7 +44,7 @@ function defaults() {
 // já tinha configurado o Modo TV com as 3 telas antigas separadas precisa
 // migrar pra não perder a tela ao abrir o app com essa versão.
 const OLD_DAILY_KEYS = ['lottery', 'holidays', 'saint'];
-function migrateKioskSlides(slides, youtubeUrl) {
+function migrateKioskSlides(slides) {
   if (!Array.isArray(slides)) return slides;
 
   let next = slides;
@@ -53,14 +53,10 @@ function migrateKioskSlides(slides, youtubeUrl) {
     next = filtered.includes('dailyInfo') ? filtered : [...filtered, 'dailyInfo'];
   }
 
-  // Tela nova ("Flashs Agendados") — quem já tinha configurado o Modo TV
-  // antes dela existir precisa ganhá-la sem precisar mexer nas Configurações.
-  if (!next.includes('calendar')) next = [...next, 'calendar'];
-
-  // Idem pro YouTube, mas só quando já existe um canal configurado (senão
-  // vira uma tela vazia no meio do rodízio de quem nunca cadastrou nada).
-  if (youtubeUrl && !next.includes('youtube')) next = [...next, 'youtube'];
-
+  // IMPORTANTE: aqui NÃO se reativa tela que o usuário desligou. "Flashs" e
+  // "YouTube" já foram forçados de volta a cada abertura do app (qualquer tela
+  // ausente da lista era readicionada) — quem desligava uma delas a via voltar
+  // a cada atualização. A lista salva manda.
   return next;
 }
 
@@ -68,31 +64,10 @@ export function loadSettings() {
   try {
     const raw = readFileSync(settingsPath(), 'utf-8');
     const merged = { ...defaults(), ...JSON.parse(raw) };
-    merged.kioskEnabledSlides = migrateKioskSlides(merged.kioskEnabledSlides, merged.youtubeUrl);
-
-    // Telas novas entram no rodízio UMA vez só (marcador persistido) — senão
-    // quem desmarcasse a tela em Configurações a veria voltar a cada abertura.
-    const done = new Set(merged.kioskSlidesMigrated || []);
-    if (!done.has('footballWorld') && Array.isArray(merged.kioskEnabledSlides)) {
-      if (!merged.kioskEnabledSlides.includes('footballWorld')) {
-        const idx = merged.kioskEnabledSlides.indexOf('football');
-        const next = [...merged.kioskEnabledSlides];
-        next.splice(idx >= 0 ? idx + 1 : next.length, 0, 'footballWorld');
-        merged.kioskEnabledSlides = next;
-      }
-      done.add('footballWorld');
-    }
-    // Mercado Agrícola: entra uma vez, logo depois de Cotações.
-    if (!done.has('agro') && Array.isArray(merged.kioskEnabledSlides)) {
-      if (!merged.kioskEnabledSlides.includes('agro')) {
-        const idx = merged.kioskEnabledSlides.indexOf('currency');
-        const next = [...merged.kioskEnabledSlides];
-        next.splice(idx >= 0 ? idx + 1 : next.length, 0, 'agro');
-        merged.kioskEnabledSlides = next;
-      }
-      done.add('agro');
-    }
-    merged.kioskSlidesMigrated = [...done];
+    // A lista de telas do Modo TV salva é a verdade: atualizar o app NUNCA liga
+    // nem desliga tela nenhuma. Tela nova aparece desmarcada em Configurações
+    // (só instalação nova já vem com ela, pelo defaults()).
+    merged.kioskEnabledSlides = migrateKioskSlides(merged.kioskEnabledSlides);
     return merged;
   } catch {
     return defaults();

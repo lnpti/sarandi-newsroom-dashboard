@@ -151,6 +151,16 @@ if ($LASTEXITCODE -ne 0) {
 # electron-builder.config.js), então uma falha numa não deve impedir a outra.
 $resultados = @{}
 $cloudflare = @{}
+# Credenciais do R2: do ambiente, ou do arquivo ~\.playnews\r2.env (fora do
+# repositório, só o seu usuário lê) — assim não precisa digitar a cada publicação.
+$arquivoR2 = Join-Path $env:USERPROFILE ".playnews\r2.env"
+if (-not ($env:R2_ACCESS_KEY_ID -and $env:R2_SECRET_ACCESS_KEY) -and (Test-Path $arquivoR2)) {
+    foreach ($linha in Get-Content $arquivoR2) {
+        if ($linha -match '^\s*(R2_[A-Z_]+)\s*=\s*(.+?)\s*$') {
+            Set-Item -Path "Env:$($Matches[1])" -Value $Matches[2]
+        }
+    }
+}
 $temCredR2 = ($env:R2_ACCESS_KEY_ID -and $env:R2_SECRET_ACCESS_KEY)
 foreach ($est in $Estacoes) {
     Write-Host ""

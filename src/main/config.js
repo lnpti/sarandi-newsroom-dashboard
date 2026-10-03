@@ -77,6 +77,7 @@ export const DEFAULT_POLL_INTERVALS_MS = {
   weatherAlerts: 15 * 60 * 1000,
   currency: 10 * 60 * 1000,
   agro: 30 * 60 * 1000,
+  liveScores: 60 * 1000,
   football: 60 * 60 * 1000,
   holidays: 12 * 60 * 60 * 1000,
   lottery: 60 * 60 * 1000,
