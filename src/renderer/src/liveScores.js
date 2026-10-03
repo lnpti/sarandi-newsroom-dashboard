@@ -3,8 +3,13 @@
 // enquanto for recente.
 export const LIVE_FRESH_MS = 3 * 60 * 1000;
 
-// Jogos em andamento do Brasil/times acompanhados, ou [] se o dado estiver velho.
+// Quanto tempo um jogo encerrado continua à vista (barra e tela) depois do apito.
+export const FINISHED_KEEP_MS = 10 * 60 * 1000;
+
+// Jogos em andamento do Brasil/times acompanhados + os que acabaram há menos de
+// 10 minutos (game.finished), ou [] se o dado estiver velho.
 export function getLiveGames(liveScores, now = Date.now()) {
   const fresh = liveScores?.lastUpdated && now - liveScores.lastUpdated < LIVE_FRESH_MS;
-  return fresh ? liveScores?.data?.games || [] : [];
+  if (!fresh) return [];
+  return (liveScores?.data?.games || []).filter((g) => !g.finished || now - g.endedAt < FINISHED_KEEP_MS);
 }

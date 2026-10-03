@@ -5312,3 +5312,266 @@ a {
 .lg--two .lg-team {
   gap: 10px;
 }
+
+/* Jogo ao vivo — detalhes: gols, cartões, substituições e estatísticas */
+.lg-game--detailed {
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 16px 32px 18px;
+}
+
+.lg-game--detailed .lg-goal {
+  margin-bottom: 4px;
+  font-size: 34px;
+}
+
+.lg-game--detailed .lg-team {
+  gap: 8px;
+}
+
+.lg-game--detailed .lg-team__logo {
+  width: 124px;
+  height: 124px;
+}
+
+.lg-game--detailed .lg-team__name {
+  font-size: 38px;
+}
+
+.lg-game--detailed .lg-score {
+  font-size: 140px;
+}
+
+.lg-game--detailed .lg-score__x {
+  font-size: 54px;
+}
+
+.lg-game--detailed .lg-clock {
+  font-size: 38px;
+}
+
+.lg-details {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
+  margin-top: 6px;
+  padding-top: 12px;
+  border-top: 1px solid var(--card-border);
+}
+
+.lg-details--stats {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr) minmax(0, 1fr);
+}
+
+.lg-evlist {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.lg-evlist--away {
+  align-items: stretch;
+}
+
+.lg-evlist__empty {
+  color: var(--muted);
+  font-size: 20px;
+}
+
+.lg-ev {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 0;
+  padding: 4px 12px;
+  border-radius: 10px;
+  background: var(--bg-elevated);
+  font-size: 24px;
+}
+
+.lg-ev--goal {
+  background: color-mix(in srgb, var(--ok) 14%, var(--bg-elevated));
+}
+
+.lg-ev__min {
+  flex-shrink: 0;
+  min-width: 70px;
+  font-weight: 800;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.lg-ev__ico {
+  flex-shrink: 0;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.lg-ev__main {
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.lg-ev__player {
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lg-ev__detail {
+  flex-shrink: 1;
+  min-width: 0;
+  font-size: 17px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lg-ev--sub {
+  font-size: 20px;
+  opacity: 0.85;
+}
+
+.lg-stats {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  gap: 4px;
+  min-height: 0;
+}
+
+.lg-stat__line {
+  display: grid;
+  grid-template-columns: 70px 1fr 70px;
+  align-items: baseline;
+  font-size: 24px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.lg-stat__line .lg-stat__v:last-child {
+  text-align: right;
+}
+
+.lg-stat__label {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.lg-stat__bar {
+  display: flex;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--card-border);
+  gap: 3px;
+}
+
+.lg-stat__home {
+  background: var(--accent);
+}
+
+.lg-stat__away {
+  background: var(--muted);
+}
+
+/* Dois jogos: lances por time em duas colunas, sem estatísticas */
+.lg--two .lg-game--detailed {
+  padding: 14px 18px;
+}
+
+.lg--two .lg-game--detailed .lg-game__row {
+  grid-template-columns: 1fr auto 1fr;
+  gap: 6px;
+}
+
+.lg--two .lg-game--detailed .lg-team__logo {
+  width: 64px;
+  height: 64px;
+}
+
+.lg--two .lg-game--detailed .lg-team__name {
+  font-size: 22px;
+}
+
+.lg--two .lg-game--detailed .lg-score {
+  font-size: 72px;
+  gap: 10px;
+}
+
+.lg--two .lg-game--detailed .lg-score__x {
+  font-size: 28px;
+}
+
+.lg--two .lg-game--detailed .lg-clock {
+  font-size: 22px;
+}
+
+.lg--two .lg-game--detailed .lg-goal {
+  font-size: 22px;
+}
+
+.lg--two .lg-details {
+  gap: 10px;
+}
+
+.lg--two .lg-ev {
+  font-size: 16px;
+  gap: 6px;
+  padding: 2px 8px;
+}
+
+.lg--two .lg-ev__min {
+  min-width: 44px;
+}
+
+.lg--two .lg-ev__ico {
+  font-size: 15px;
+}
+
+.lg--two .lg-ev__detail {
+  display: none;
+}
+
+.lg--two .lg-evlist__empty {
+  font-size: 15px;
+}
+
+/* Jogo encerrado (os 10 minutos depois do apito): visual neutro, sem o vermelho de "ao vivo" */
+.live-ticker--ended {
+  border-color: var(--card-border);
+  background: var(--bg-elevated);
+}
+
+.live-ticker--ended .live-ticker__badge {
+  color: var(--muted);
+}
+
+.live-ticker .live-game__clock {
+  white-space: nowrap;
+}
+
+.lg-header__badge--ended {
+  color: var(--muted);
+  background: var(--bg-elevated);
+}
+
+.lg-game--ended {
+  border-color: var(--card-border);
+  background: var(--card);
+}
+
+.lg-clock--ended {
+  color: var(--text);
+  background: var(--bg-elevated);
+}

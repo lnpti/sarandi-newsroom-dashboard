@@ -28,6 +28,7 @@ export default function App() {
         liveGameFrequency: s.liveGameFrequency,
         liveGameGoalAlert: s.liveGameGoalAlert,
         liveGameGoalSeconds: s.liveGameGoalSeconds,
+        liveGameDetails: s.liveGameDetails,
       });
     });
   }, []);

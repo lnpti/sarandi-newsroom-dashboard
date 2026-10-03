@@ -21,7 +21,9 @@ export function useGoalAlert(liveScores, { enabled, seconds }) {
       seen.add(game.id);
       const prev = lastScores.current.get(game.id);
       lastScores.current.set(game.id, { home: game.homeScore, away: game.awayScore });
-      if (!prev || !enabled) continue;
+      // Encerrado não alerta: o placar final pode ter chegado depois da última
+      // leitura ao vivo (gol nos acréscimos), mas o jogo já acabou.
+      if (!prev || !enabled || game.finished) continue;
 
       const side = game.homeScore > prev.home ? 'home' : game.awayScore > prev.away ? 'away' : null;
       if (!side) continue;

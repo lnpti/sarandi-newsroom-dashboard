@@ -35,6 +35,7 @@ const FREQUENCY_GROUPS = [
 export default function SettingsPanel({ kiosk, onUpdateKiosk, onClose }) {
   const liveOn = kiosk?.liveGameSlideOn !== false;
   const goalOn = kiosk?.liveGameGoalAlert !== false;
+  const detailsOn = kiosk?.liveGameDetails !== false;
   const [tab, setTab] = useState('geral');
   const [settings, setSettings] = useState(null);
   const [theme, setTheme] = useState(getStoredTheme);
@@ -462,8 +463,8 @@ export default function SettingsPanel({ kiosk, onUpdateKiosk, onClose }) {
 
               <div className="settings-panel__section">Jogo ao vivo (Brasil, Grêmio e Inter)</div>
               <p className="settings-rss__hint">
-                Enquanto um jogo desses estiver rolando, uma tela inteira com o placar entra no rodízio. Some sozinha
-                quando o jogo termina.
+                Enquanto um jogo desses estiver rolando, uma tela inteira com o placar entra no rodízio. Depois do apito
+                final, o jogo (e o placar na barra inferior) fica à vista por mais 10 minutos e some sozinho.
               </p>
               <label className="settings-row settings-tv__slide">
                 <span>Tela de jogo ao vivo no rodízio</span>
@@ -487,6 +488,15 @@ export default function SettingsPanel({ kiosk, onUpdateKiosk, onClose }) {
                   ))}
                 </select>
               </div>
+              <label className="settings-row settings-tv__slide">
+                <span>Mostrar gols, cartões, substituições e estatísticas</span>
+                <input
+                  type="checkbox"
+                  checked={detailsOn}
+                  disabled={!liveOn}
+                  onChange={() => onUpdateKiosk({ liveGameDetails: !detailsOn })}
+                />
+              </label>
               <label className="settings-row settings-tv__slide">
                 <span>Interromper a tela atual quando sair gol</span>
                 <input

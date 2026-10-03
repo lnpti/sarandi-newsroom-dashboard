@@ -31,7 +31,7 @@ function LiveGame({ game, compact }) {
         {game.awayScore}
       </span>
       <Team name={game.awayName} abbr={game.awayAbbr} logo={game.awayLogo} compact={compact} />
-      {game.clock && <span className="live-game__clock">{game.clock}</span>}
+      {game.clock && <span className="live-game__clock">{game.finished ? 'Fim' : game.clock}</span>}
     </div>
   );
 }
@@ -45,11 +45,16 @@ export default function LiveScoreTicker({ liveScores }) {
 
   const shown = games.slice(0, 2);
   const multi = shown.length > 1;
+  // Só encerrados: o selo vira "ENCERRADO" (sem o ponto pulsante) e a caixa fica neutra.
+  const allEnded = shown.every((g) => g.finished);
 
   return (
-    <div className={`live-ticker ${multi ? 'live-ticker--multi' : ''}`} title="Placar ao vivo">
+    <div
+      className={`live-ticker ${multi ? 'live-ticker--multi' : ''} ${allEnded ? 'live-ticker--ended' : ''}`}
+      title={allEnded ? 'Jogo encerrado' : 'Placar ao vivo'}
+    >
       <span className="live-ticker__badge">
-        <span className="live-ticker__dot" /> AO VIVO
+        {!allEnded && <span className="live-ticker__dot" />} {allEnded ? 'ENCERRADO' : 'AO VIVO'}
       </span>
       {/* 2 jogos ficam empilhados (uma linha cada) pra caber na altura/largura da barra */}
       <div className="live-ticker__games">

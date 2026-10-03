@@ -193,7 +193,7 @@ function startPollers(store, settings, getSettings) {
   pollers.liveScores = createPoller({
     key: 'liveScores',
     intervalMs: settings.liveScores,
-    fetchFn: fetchLiveScores,
+    fetchFn: () => fetchLiveScores({ details: getSettings().liveGameDetails !== false }),
     onResult: (key, patch) => store.update(key, patch),
   });
   pollers.liveScores.start();

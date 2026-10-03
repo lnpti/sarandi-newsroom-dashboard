@@ -107,9 +107,20 @@ export default function KioskView({ snapshot, kiosk }) {
   return (
     <div className="kiosk-view">
       {goal ? (
-        <KioskLiveGameSlide key={`goal-${goal.key}`} liveScores={snapshot.liveScores} goal={goal} />
+        <KioskLiveGameSlide
+          key={`goal-${goal.key}`}
+          liveScores={snapshot.liveScores}
+          goal={goal}
+          showDetails={kiosk.liveGameDetails !== false}
+        />
       ) : (
-        <Component key={key} {...slideProps} page={page} onSelectPage={goToPage} />
+        <Component
+          key={key}
+          {...slideProps}
+          page={page}
+          onSelectPage={goToPage}
+          showDetails={kiosk.liveGameDetails !== false}
+        />
       )}
       {rotationKeys.length > 1 && (
         <>

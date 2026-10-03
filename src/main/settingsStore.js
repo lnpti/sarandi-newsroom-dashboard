@@ -43,6 +43,8 @@ function defaults() {
     liveGameFrequency: 'normal',
     liveGameGoalAlert: true,
     liveGameGoalSeconds: 15,
+    // Gols, cartões, substituições e estatísticas na tela do jogo.
+    liveGameDetails: true,
   };
 }
 
