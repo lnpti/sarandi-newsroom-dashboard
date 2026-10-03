@@ -16,6 +16,14 @@ const TABS = [
 
 const SLIDE_DURATION_OPTIONS = [10, 15, 20, 30, 45, 60];
 
+// Tela de jogo ao vivo: quantas vezes entra no rodízio e quanto dura o alerta de gol.
+const LIVE_FREQUENCY_OPTIONS = [
+  { value: 'normal', label: 'Normal (1 vez por volta)' },
+  { value: 'frequent', label: 'Frequente (a cada 2 telas)' },
+  { value: 'national', label: 'Frequente só nos jogos da seleção' },
+];
+const GOAL_SECONDS_OPTIONS = [8, 10, 15, 20, 30];
+
 // Agrupa as frequências por assunto em vez de uma lista única de 11 itens.
 const FREQUENCY_GROUPS = [
   { title: 'Rádio', keys: ['listeners', 'radioNews'] },
@@ -25,6 +33,8 @@ const FREQUENCY_GROUPS = [
 ];
 
 export default function SettingsPanel({ kiosk, onUpdateKiosk, onClose }) {
+  const liveOn = kiosk?.liveGameSlideOn !== false;
+  const goalOn = kiosk?.liveGameGoalAlert !== false;
   const [tab, setTab] = useState('geral');
   const [settings, setSettings] = useState(null);
   const [theme, setTheme] = useState(getStoredTheme);
@@ -449,6 +459,57 @@ export default function SettingsPanel({ kiosk, onUpdateKiosk, onClose }) {
                   />
                 </label>
               ))}
+
+              <div className="settings-panel__section">Jogo ao vivo (Brasil, Grêmio e Inter)</div>
+              <p className="settings-rss__hint">
+                Enquanto um jogo desses estiver rolando, uma tela inteira com o placar entra no rodízio. Some sozinha
+                quando o jogo termina.
+              </p>
+              <label className="settings-row settings-tv__slide">
+                <span>Tela de jogo ao vivo no rodízio</span>
+                <input
+                  type="checkbox"
+                  checked={liveOn}
+                  onChange={() => onUpdateKiosk({ liveGameSlideOn: !liveOn })}
+                />
+              </label>
+              <div className="settings-row">
+                <span>Com que frequência aparece</span>
+                <select
+                  value={kiosk.liveGameFrequency || 'normal'}
+                  disabled={!liveOn}
+                  onChange={(e) => onUpdateKiosk({ liveGameFrequency: e.target.value })}
+                >
+                  {LIVE_FREQUENCY_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <label className="settings-row settings-tv__slide">
+                <span>Interromper a tela atual quando sair gol</span>
+                <input
+                  type="checkbox"
+                  checked={goalOn}
+                  disabled={!liveOn}
+                  onChange={() => onUpdateKiosk({ liveGameGoalAlert: !goalOn })}
+                />
+              </label>
+              <div className="settings-row">
+                <span>Duração do alerta de gol</span>
+                <select
+                  value={kiosk.liveGameGoalSeconds || 15}
+                  disabled={!liveOn || !goalOn}
+                  onChange={(e) => onUpdateKiosk({ liveGameGoalSeconds: Number(e.target.value) })}
+                >
+                  {GOAL_SECONDS_OPTIONS.map((s) => (
+                    <option key={s} value={s}>
+                      {s} segundos
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           )}
         </div>

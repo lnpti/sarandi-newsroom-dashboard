@@ -24,6 +24,10 @@ export default function App() {
         kioskModeOn: s.kioskModeOn,
         kioskEnabledSlides: s.kioskEnabledSlides,
         kioskSecondsPerSlide: s.kioskSecondsPerSlide,
+        liveGameSlideOn: s.liveGameSlideOn,
+        liveGameFrequency: s.liveGameFrequency,
+        liveGameGoalAlert: s.liveGameGoalAlert,
+        liveGameGoalSeconds: s.liveGameGoalSeconds,
       });
     });
   }, []);

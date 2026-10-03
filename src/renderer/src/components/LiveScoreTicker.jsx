@@ -1,9 +1,5 @@
 import { useEffect, useState } from 'react';
-
-// O poller roda a cada minuto; se o dado parar de chegar (sem internet, ESPN
-// fora do ar) o último placar ficaria "ao vivo" pra sempre — então só vale
-// enquanto for recente.
-const FRESH_MS = 3 * 60 * 1000;
+import { getLiveGames } from '../liveScores.js';
 
 function useNow(intervalMs) {
   const [now, setNow] = useState(() => Date.now());
@@ -44,18 +40,23 @@ function LiveGame({ game, compact }) {
 // ou dos times acompanhados; sem jogo (ou dado velho) não ocupa espaço.
 export default function LiveScoreTicker({ liveScores }) {
   const now = useNow(30000);
-  const games = liveScores?.data?.games || [];
-  const fresh = liveScores?.lastUpdated && now - liveScores.lastUpdated < FRESH_MS;
-  if (!fresh || games.length === 0) return null;
+  const games = getLiveGames(liveScores, now);
+  if (games.length === 0) return null;
+
+  const shown = games.slice(0, 2);
+  const multi = shown.length > 1;
 
   return (
-    <div className="live-ticker" title="Placar ao vivo">
+    <div className={`live-ticker ${multi ? 'live-ticker--multi' : ''}`} title="Placar ao vivo">
       <span className="live-ticker__badge">
         <span className="live-ticker__dot" /> AO VIVO
       </span>
-      {games.slice(0, 2).map((game) => (
-        <LiveGame key={game.id} game={game} compact={games.length > 1} />
-      ))}
+      {/* 2 jogos ficam empilhados (uma linha cada) pra caber na altura/largura da barra */}
+      <div className="live-ticker__games">
+        {shown.map((game) => (
+          <LiveGame key={game.id} game={game} compact={multi} />
+        ))}
+      </div>
     </div>
   );
 }

@@ -37,6 +37,12 @@ function defaults() {
       ...(stationConfig.DEFAULT_YOUTUBE_URL ? ['youtube'] : []),
     ],
     kioskSecondsPerSlide: 20,
+    // Tela de jogo ao vivo (Brasil/Grêmio/Inter): entra no rodízio só durante o
+    // jogo. liveGameFrequency: 'normal' | 'frequent' | 'national'.
+    liveGameSlideOn: true,
+    liveGameFrequency: 'normal',
+    liveGameGoalAlert: true,
+    liveGameGoalSeconds: 15,
   };
 }
 
