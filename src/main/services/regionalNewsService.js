@@ -43,10 +43,11 @@ function splitSource(rawTitle) {
 
 // Fontes que não devem aparecer no feed regional:
 // - Rádio Sarandi (já tem coluna dedicada),
-// - Rádio Minuano (a pedido).
+// - Rádio Minuano (a pedido),
+// - Vang FM (a pedido).
 function isBlockedSource(source) {
   const s = source || '';
-  return /r[aá]dio\s+sarandi/i.test(s) || /minuano/i.test(s);
+  return /r[aá]dio\s+sarandi/i.test(s) || /minuano/i.test(s) || /vang\s*fm/i.test(s);
 }
 
 // Boa parte dessas fontes não vem com nome legível no título (source null) —
@@ -55,7 +56,11 @@ function isBlockedLink(link) {
   if (!link) return false;
   try {
     const host = new URL(link).hostname.toLowerCase();
-    return /(^|\.)radiosarandi\.com\.br$/.test(host) || /(^|\.)radiominuano\.com\.br$/.test(host);
+    return (
+      /(^|\.)radiosarandi\.com\.br$/.test(host) ||
+      /(^|\.)radiominuano\.com\.br$/.test(host) ||
+      /(^|\.)vangfm\.com\.br$/.test(host)
+    );
   } catch {
     return false;
   }

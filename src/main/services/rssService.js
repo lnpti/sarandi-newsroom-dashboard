@@ -47,7 +47,7 @@ async function parseUrl(url, encoding) {
   return parser.parseString(xml);
 }
 
-export async function fetchPortal(source) {
+async function loadPortalItems(source) {
   try {
     const feed = await parseUrl(source.primaryUrl, source.encoding);
     return mapItems(feed.items || [], source);
@@ -56,6 +56,110 @@ export async function fetchPortal(source) {
     const feed = await parseUrl(source.fallbackUrl, null);
     return mapItems(feed.items || [], source);
   }
+}
+
+// ---- Foto de capa buscada na própria matéria -------------------------------
+// Só o G1 traz imagem no RSS; UOL quase nunca, e GZH/CBN (via Google Notícias)
+// nunca. Sem foto os cartões da TV ficavam vazios — e se o G1 falhasse (o app cai
+// pro Google Notícias) a tela inteira ficava sem foto. Então, pras notícias sem
+// imagem, abre a página da matéria e lê o <meta og:image>. Links do Google
+// Notícias (news.google.com/rss/articles/...) não são a matéria: é preciso pedir
+// o endereço real ao próprio Google antes.
+const ENRICH_LIMIT = 8; // notícias por portal (as que a TV realmente mostra)
+const ENRICH_CONCURRENCY = 4;
+const ENRICH_TIMEOUT_MS = 9000;
+const ENRICH_RETRY_MS = 15 * 60 * 1000; // falha só é tentada de novo depois disso
+const PAGE_UA =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36';
+const enrichCache = new Map(); // link original -> { link, image, at }
+
+async function resolveGoogleNewsUrl(link) {
+  const id = new URL(link).pathname.split('/').pop();
+  const page = await (
+    await fetch(`https://news.google.com/rss/articles/${id}`, {
+      headers: { 'User-Agent': PAGE_UA },
+      signal: AbortSignal.timeout(ENRICH_TIMEOUT_MS),
+    })
+  ).text();
+  const signature = page.match(/data-n-a-sg="([^"]+)"/)?.[1];
+  const timestamp = page.match(/data-n-a-ts="([^"]+)"/)?.[1];
+  if (!signature || !timestamp) throw new Error('assinatura do Google Notícias não encontrada');
+
+  const request = [
+    'Fbv4je',
+    JSON.stringify([
+      'garturlreq',
+      [['X', 'X', ['X', 'X'], null, null, 1, 1, 'US:en', null, 1, null, null, null, null, null, 0, 1], 'X', 'X', 1, [1, 1, 1], 1, 1, null, 0, 0, null, 0],
+      id,
+      Number(timestamp),
+      signature,
+    ]),
+    null,
+    'generic',
+  ];
+  const response = await fetch('https://news.google.com/_/DotsSplashUi/data/batchexecute', {
+    method: 'POST',
+    headers: { 'User-Agent': PAGE_UA, 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+    body: `f.req=${encodeURIComponent(JSON.stringify([[request]]))}`,
+    signal: AbortSignal.timeout(ENRICH_TIMEOUT_MS),
+  });
+  const body = (await response.text()).split('\n\n')[1];
+  const real = JSON.parse(JSON.parse(body)[0][2])[1];
+  if (typeof real !== 'string' || !real.startsWith('http')) throw new Error('endereço real não encontrado');
+  return real;
+}
+
+function extractOgImage(html) {
+  for (const tag of html.match(/<meta\s+[^>]*>/gi) || []) {
+    if (!/property=["']og:image["']/i.test(tag)) continue;
+    const match = tag.match(/content=["']([^"']+)["']/i);
+    if (match) return match[1].replace(/&amp;/g, '&');
+  }
+  return null;
+}
+
+async function enrichOne(item) {
+  const cached = enrichCache.get(item.link);
+  if (cached && (cached.image || Date.now() - cached.at < ENRICH_RETRY_MS)) {
+    return cached.image ? { ...item, image: cached.image, link: cached.link } : item;
+  }
+
+  let link = item.link;
+  let image = null;
+  try {
+    if (/^https?:\/\/news\.google\.com\//i.test(link)) link = await resolveGoogleNewsUrl(link);
+    const response = await fetch(link, {
+      headers: { 'User-Agent': PAGE_UA, 'Accept-Language': 'pt-BR,pt;q=0.9' },
+      redirect: 'follow',
+      signal: AbortSignal.timeout(ENRICH_TIMEOUT_MS),
+    });
+    if (response.ok) {
+      const found = extractOgImage(await response.text());
+      image = found ? new URL(found, link).href : null;
+    }
+  } catch {
+    // Site fora do ar, bloqueando ou lento: segue sem foto nessa notícia.
+  }
+  enrichCache.set(item.link, { link, image, at: Date.now() });
+  // Abre a matéria direto no portal (e não na página de redirecionamento do Google).
+  return image ? { ...item, image, link } : item;
+}
+
+async function enrichImages(items) {
+  const targets = items.slice(0, ENRICH_LIMIT).filter((item) => !item.image && item.link);
+  if (targets.length === 0) return items;
+
+  const byLink = new Map();
+  for (let i = 0; i < targets.length; i += ENRICH_CONCURRENCY) {
+    const batch = targets.slice(i, i + ENRICH_CONCURRENCY);
+    const done = await Promise.all(batch.map(enrichOne));
+    batch.forEach((item, j) => byLink.set(item.link, done[j]));
+  }
+  return items.map((item) => byLink.get(item.link) || item);
+}
+
+export async function fetchPortal(source) {
+  return enrichImages(await loadPortalItems(source));
 }
 
 export async function fetchAllPortals() {

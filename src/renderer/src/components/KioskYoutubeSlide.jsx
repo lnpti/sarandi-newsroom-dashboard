@@ -36,7 +36,7 @@ function Featured({ video }) {
       <div className="yt-featured__body">
         <span className="yt-tag">Último vídeo</span>
         <h2 className="yt-featured__title">{video.title}</h2>
-        <span className="yt-when">{formatWhen(video.publishedAt)}</span>
+        <span className="yt-when">{video.publishedAt ? formatWhen(video.publishedAt) : video.publishedLabel}</span>
       </div>
     </a>
   );
@@ -48,7 +48,7 @@ function ListItem({ video }) {
       <Thumb video={video} className="yt-item__thumb" />
       <div className="yt-item__body">
         <h3 className="yt-item__title">{video.title}</h3>
-        <span className="yt-when">{formatWhen(video.publishedAt)}</span>
+        <span className="yt-when">{video.publishedAt ? formatWhen(video.publishedAt) : video.publishedLabel}</span>
       </div>
     </a>
   );

@@ -109,8 +109,18 @@ export default function SettingsPanel({ kiosk, onUpdateKiosk, onClose }) {
 
   function handleSaveYoutubeUrl() {
     const url = youtubeUrlInput.trim();
+    const hadChannel = Boolean(settings?.youtubeUrl);
     setSettings((prev) => ({ ...prev, youtubeUrl: url }));
     window.dashboard.updateSettings({ youtubeUrl: url });
+
+    // Primeiro canal cadastrado: liga a tela de vídeos no rodízio. Sem isso quem
+    // cadastra o canal numa emissora que não vinha com um (ex.: Alvorada) não vê
+    // os vídeos em lugar nenhum e acha que não funcionou. Só nessa primeira vez —
+    // depois disso, desmarcar a tela é escolha do usuário e é respeitada.
+    const current = kiosk?.kioskEnabledSlides || [];
+    if (url && !hadChannel && !current.includes('youtube')) {
+      onUpdateKiosk({ kioskEnabledSlides: [...current, 'youtube'] });
+    }
   }
 
   function handleClearYoutubeUrl() {
