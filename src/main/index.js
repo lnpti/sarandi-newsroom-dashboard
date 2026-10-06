@@ -42,6 +42,7 @@ app.setName(stationConfig.RADIO_NAME);
 const APP_USER_MODEL_IDS = {
   sarandi: 'com.radiosarandi.newsroom-dashboard',
   cacique: 'com.tuaradiocacique.newsroom-dashboard',
+  alvorada: 'com.tuaradioalvorada.newsroom-dashboard',
 };
 app.setAppUserModelId(APP_USER_MODEL_IDS[stationConfig.STATION_SLUG] || APP_USER_MODEL_IDS.sarandi);
 

@@ -6,7 +6,8 @@ import react from '@vitejs/plugin-react';
 const pkg = JSON.parse(readFileSync(resolve('package.json'), 'utf-8'));
 
 // Emissora ativa nesta build/execução — default "sarandi". Ex.: STATION=cacique npm run dev
-const STATION = process.env.STATION === 'cacique' ? 'cacique' : 'sarandi';
+const STATIONS = ['sarandi', 'cacique', 'alvorada'];
+const STATION = STATIONS.includes(process.env.STATION) ? process.env.STATION : 'sarandi';
 
 export default defineConfig(({ mode }) => {
   // Só variáveis com o prefixo MAIN_VITE_ chegam no processo main (via .env,

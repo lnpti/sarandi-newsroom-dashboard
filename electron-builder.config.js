@@ -1,7 +1,7 @@
 // Config do electron-builder fora do package.json de propósito: o --config
 // aponta pra este arquivo e ele já monta o objeto certo pra emissora ativa
 // (electron-builder não faz merge implícito entre --config e package.json).
-const STATION = process.env.STATION === 'cacique' ? 'cacique' : 'sarandi';
+const STATION = ['sarandi', 'cacique', 'alvorada'].includes(process.env.STATION) ? process.env.STATION : 'sarandi';
 
 const OVERRIDES = {
   sarandi: {
@@ -25,6 +25,17 @@ const OVERRIDES = {
       provider: 'github',
       owner: 'lnpti',
       repo: 'tua-radio-cacique-dashboard',
+      releaseType: 'release',
+    },
+    win: { icon: 'build/icon.ico', target: ['nsis'] },
+  },
+  alvorada: {
+    appId: 'com.tuaradioalvorada.newsroom-dashboard',
+    productName: 'PlayNews',
+    publish: {
+      provider: 'github',
+      owner: 'lnpti',
+      repo: 'tua-radio-alvorada-dashboard',
       releaseType: 'release',
     },
     win: { icon: 'build/icon.ico', target: ['nsis'] },

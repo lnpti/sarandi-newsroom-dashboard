@@ -4,7 +4,7 @@
 //
 // Uso (logo DEPOIS do build da emissora — as duas emissoras geram o MESMO nome
 // de arquivo em dist/, então a próxima build sobrescreve):
-//   STATION=sarandi|cacique node scripts/publish-cloudflare.mjs
+//   STATION=sarandi|cacique|alvorada node scripts/publish-cloudflare.mjs
 //
 // Credenciais só por variável de ambiente (nunca salvas em arquivo):
 //   R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY
@@ -23,7 +23,7 @@ const R2_ENDPOINT = 'https://3ba41e8e3fe261af1fe20455343c36d1.r2.cloudflarestora
 const R2_PUBLIC_BASE = 'https://pub-8060abbe70084968817647c74ce4ffbc.r2.dev';
 const R2_BUCKET = 'app-releases';
 
-const station = process.env.STATION === 'cacique' ? 'cacique' : 'sarandi';
+const station = ['sarandi', 'cacique', 'alvorada'].includes(process.env.STATION) ? process.env.STATION : 'sarandi';
 const prefix = `playnews-${station}`;
 
 const accessKeyId = process.env.R2_ACCESS_KEY_ID;
