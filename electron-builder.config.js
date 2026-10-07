@@ -42,10 +42,16 @@ const OVERRIDES = {
   },
 };
 
+const STATION_TITLES = { sarandi: 'Sarandi', cacique: 'Cacique', alvorada: 'Alvorada' };
+
 module.exports = {
   directories: { output: 'dist' },
   files: ['out/**/*'],
-  artifactName: '${productName}-Setup-${version}.${ext}',
+  // Um nome de instalador por emissora: antes as três geravam o MESMO arquivo
+  // (PlayNews-Setup-<versão>.exe) na pasta dist, cada build sobrescrevia a
+  // anterior, e era fácil pegar o instalador de uma rádio achando que era de
+  // outra (o PlayNews do Sarandi virou o do Cacique). Agora os três coexistem.
+  artifactName: 'PlayNews-' + STATION_TITLES[STATION] + '-Setup-${version}.${ext}',
   nsis: { oneClick: true, perMachine: false, runAfterFinish: true },
   ...OVERRIDES[STATION],
 };

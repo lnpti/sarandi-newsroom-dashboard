@@ -37,7 +37,8 @@ const root = fileURLToPath(new URL('..', import.meta.url));
 const distDir = join(root, 'dist');
 const { version } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf-8'));
 
-const installer = `PlayNews-Setup-${version}.exe`;
+const stationTitle = station.charAt(0).toUpperCase() + station.slice(1);
+const installer = `PlayNews-${stationTitle}-Setup-${version}.exe`;
 const manifestPath = join(distDir, 'latest.yml');
 
 // Confere que o latest.yml é DESTA versão — senão publicaria um manifesto velho
